@@ -7,12 +7,12 @@ colorize: true
 
 # Which 'chroma' colorscheme should be applied to the output?
 # Options are available here:
-
+#   https://github.com/alecthomas/chroma/tree/master/styles
 style: dracula
 
 # Which 'chroma' "formatter" should be applied?
 # One of: "terminal", "terminal256", "terminal16m"
-formatter: terminal256
+formatter: terminal16m
 
 # Through which pager should output be piped?
 # 'less -FRX' is recommended on Unix systems
@@ -42,20 +42,20 @@ cheatpaths:
 
   # Cheatsheets that are tagged "personal" are stored here by default:
   - name: personal
-    path: /Users/javi/.config/cheat/cheatsheets/personal
+    path: ~/.config/cheat/cheatsheets/personal
     tags: [ personal ]
     readonly: false
 
   # Cheatsheets that are tagged "work" are stored here by default:
   - name: work
-    path: /Users/javi/.config/cheat/cheatsheets/work
+    path: ~/.config/cheat/cheatsheets/work
     tags: [ work ]
     readonly: false
 
   # Community cheatsheets (https://github.com/cheat/cheatsheets):
-  # To install: git clone https://github.com/cheat/cheatsheets /Users/javi/.config/cheat/cheatsheets/community
+  # To install: git clone https://github.com/cheat/cheatsheets ~/.config/cheat/cheatsheets/community
   - name: community
-    path: /Users/javi/.config/cheat/cheatsheets/community
+    path: ~/.config/cheat/cheatsheets/community
     tags: [ community ]
     readonly: true
 
