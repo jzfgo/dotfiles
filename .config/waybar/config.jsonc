@@ -1,0 +1,166 @@
+{
+    "position": "top",
+    "margin-top": 20,
+    "margin-left": 5,
+    "margin-right": 5,
+    "modules-left": [
+        "clock",
+        "hyprland/workspaces"
+    ],
+    "modules-center": [
+        "wlr/taskbar"
+    ],
+    "modules-right": [
+        "tray",
+        "pulseaudio",
+        "cpu",
+        "memory",
+        "custom/gpu-usage",
+        "network",
+        "power-profiles-daemon",
+        "idle_inhibitor",
+        "custom/notification",
+        "custom/power"
+    ],
+    "clock": {
+        "interval": 60,
+        "format": "{:%a %b %d %H:%M}",
+        "max-length": 25
+    },
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "persistent-workspaces": {
+            "*": 5 // 5 workspaces by default on every monitor
+        }
+    },
+    "wlr/taskbar": {
+        "format": "{icon}   {name}",
+        "icon-size": 14,
+        "icon-theme": "Numix-Circle",
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-middle": "close",
+        "ignore-list": [
+            "kitty"
+        ],
+        "app_ids-mapping": {
+            "firefoxdeveloperedition": "firefox-developer-edition"
+        },
+        "rewrite": {
+            "Firefox Web Browser": "Firefox",
+            "Foot Server": "Terminal",
+            ".*(steam_app_[0-9]+).*": "Game"
+        }
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        },
+        "on-click": "bash -lc 'systemctl --user is-enabled --quiet hypridle && systemctl --user disable --now hypridle || systemctl --user enable --now hypridle'"
+    },
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "",
+        "format-icons": {
+            "alsa_output.pci-0000_00_1f.3.analog-stereo": "",
+            "alsa_output.pci-0000_00_1f.3.analog-stereo-muted": "",
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "phone-muted": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                ""
+            ]
+        },
+        "scroll-step": 1,
+        "on-click": "pavucontrol",
+        "ignored-sinks": [
+            "Easy Effects Sink"
+        ]
+    },
+    "cpu": {
+        "interval": 1,
+        "format": "{icon0}{icon1}{icon2}{icon3}{icon4}{icon5}{icon6}{icon7}{icon8}{icon9}{icon10}{icon11}{icon12}{icon13}{icon14}{icon15} \uf4bc",
+        "format-icons": [
+            "<span color='#69ff94'>⡀</span>",
+            "<span color='#2aa9ff'>⡄</span>",
+            "<span color='#f8f8f2'>⡆</span>",
+            "<span color='#f8f8f2'>⡇</span>",
+            "<span color='#ffffa5'>⣇</span>",
+            "<span color='#ffffa5'>⣧</span>",
+            "<span color='#ff9977'>⣷</span>",
+            "<span color='#dd532e'>⣿</span>"
+        ]
+    },
+    "memory": {
+        "interval": 30,
+        "format": "{}% 󰆼",
+        "max-length": 10
+    },
+    "custom/gpu-usage": {
+        "format": "{} {icon}", /* "{text} {icon}" for nightly users */
+        "exec": "gpu-usage-waybar",
+        "return-type": "json",
+        "format-icons": "󰾲",
+        "on-click": "kitty -e nvtop"
+    },
+    "network": {
+        "interface": "enp5s0f0",
+        "format": "{ifname}",
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "online 󰈀",
+        "format-disconnected": "", //An empty format will hide the module.
+        "tooltip-format": "{ifname} via {gwaddr} 󰈀",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+        "tooltip-format-ethernet": "{ifname} ",
+        "tooltip-format-disconnected": "Disconnected",
+        "max-length": 50
+    },
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+        "tooltip": true,
+        "format-icons": {
+            "default": "",
+            "performance": "",
+            "balanced": "",
+            "power-saver": ""
+        }
+    },
+    "custom/notification": {
+        "tooltip": true,
+        "format": "<span size='16pt'>{icon}</span>",
+        "format-icons": {
+            "notification": "󱅫",
+            "none": "󰂜",
+            "dnd-notification": "󰂠",
+            "dnd-none": "󰪓",
+            "inhibited-notification": "󰂛",
+            "inhibited-none": "󰪑",
+            "dnd-inhibited-notification": "󰂛",
+            "dnd-inhibited-none": "󰪑"
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
+    "custom/power": {
+        "format": "<span size='12pt'>⏻</span>",
+        "on-click": "wlogout -b 2 -c 0 -r 0",
+        "tooltip": false
+    }
+}
