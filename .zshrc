@@ -13,6 +13,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(direnv gcloud zoxide zsh-nvm)
 source "$ZSH/oh-my-zsh.sh"
 
+# User configuration
+[[ -f $HOME/.secrets ]] && source $HOME/.secrets
+
 # Personal aliases
 alias sshcfg="nvim ~/.ssh/config"
 alias zshcfg="nvim ~/.zshrc"
