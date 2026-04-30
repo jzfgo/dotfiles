@@ -43,6 +43,14 @@
 	name = Javier Zapata
 	email = javierzapata82@gmail.com
 
+[difftool]
+	prompt = false
+	trustExitCode = true
+
+[mergetool]
+	keepBackup = false
+	prompt = false
+
 [init]
 	defaultBranch = main
 
