@@ -18,14 +18,6 @@ source "$ZSH/oh-my-zsh.sh"
 # User configuration
 [[ -f $HOME/.secrets ]] && source $HOME/.secrets
 
-# Personal aliases
-alias sshcfg="nvim ~/.ssh/config"
-alias zshcfg="nvim ~/.zshrc"
-alias omzcfg="nvim ~/.oh-my-zsh"
-alias v="nvim"
-alias ls="eza -lhaG"
-alias ll="eza -la"
-
 # Optional command completions
 if command -v zmx >/dev/null 2>&1; then
   eval "$(command zmx c zsh)"

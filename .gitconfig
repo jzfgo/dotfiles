@@ -1,0 +1,60 @@
+[alias]
+	a = add
+	st = status -s
+	sta = status
+	co = checkout
+	cob = checkout -b
+	br = branch
+	ci = commit
+	cim = commit -m
+	ciam = commit -am
+	amend = commit --amend
+	l = log --pretty=format:'%C(yellow)%h %C(reset)%s %C(magenta)[%an] %C(cyan)%ad' --date=short
+	lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+	hist = log --pretty=format:'%C(yellow)%h%C(reset) %ad | %s%d [%an]' --graph --date=short
+	wt = worktree
+	wtl = worktree list
+	wta = worktree add
+	wtrm = worktree remove
+	wtco = worktree checkout
+	wtst = worktree status
+	wtlk = worktree lock
+
+[apply]
+	whitespace = nowarn
+
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+
+[core]
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+	quotepath = false
+	whitespace = -trailing-space,-indent-with-non-tab,-tab-in-indent
+
+[push]
+	default = simple
+	autoSetupRemote = true
+
+[user]
+	name = Javier Zapata
+	email = javierzapata82@gmail.com
+
+[init]
+	defaultBranch = main
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[pull]
+	ff = only
+
+[include]
+    path = ~/.gitconfig.macos
+    path = ~/.gitconfig.linux
