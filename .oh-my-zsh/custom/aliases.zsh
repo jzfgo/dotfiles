@@ -2,6 +2,7 @@ alias sshcfg="nvim ~/.ssh/config"
 alias zshcfg="nvim ~/.zshrc"
 alias omzcfg="nvim ~/.oh-my-zsh"
 alias ktycfg="nvim ~/.config/kitty/kitty.conf"
+alias vimcfg="vim ~/.vimrc"
 
 alias v="nvim"
 alias ls="eza -lhaG --icons"
