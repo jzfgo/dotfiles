@@ -5,8 +5,6 @@ alias ktycfg="nvim ~/.config/kitty/kitty.conf"
 alias vimcfg="vim ~/.vimrc"
 
 alias v="nvim"
-alias ls="eza -lhaG --icons"
-alias ll="eza -la --icons"
 
 alias lg="lazygit"
 
