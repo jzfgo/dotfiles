@@ -18,8 +18,13 @@ M.base46 = {
 
 M.nvdash = { load_on_startup = true }
 M.ui = {
+  statusline = {
+    theme = "minimal",
+    separator_style = "round",
+  },
+
   tabufline = {
-    lazyload = false,
+    lazyload = true,
   },
 }
 
