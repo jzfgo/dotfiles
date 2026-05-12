@@ -2,19 +2,7 @@ require "nvchad.autocmds"
 
 local autocmd = vim.api.nvim_create_autocmd
 
-autocmd("BufWritePre", {
-  pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
-  callback = function()
-    local clients = vim.lsp.get_clients({ bufnr = 0, name = "ts_ls" })
-    for _, client in ipairs(clients) do
-      client:request_sync("workspace/executeCommand", {
-        command = "_typescript.organizeImports",
-        arguments = { vim.api.nvim_buf_get_name(0) },
-      }, 3000, 0)
-    end
-  end,
-})
-
+-- Re-apply NvimTree transparency after each colorscheme load, since themes reset all highlights
 autocmd("ColorScheme", {
   pattern = "*",
   callback = function()
@@ -25,6 +13,46 @@ autocmd("ColorScheme", {
     }
     for _, hl in ipairs(highlights) do
       vim.api.nvim_set_hl(0, hl, { bg = "none", ctermbg = "none" })
+    end
+  end,
+})
+
+-- Organize imports on save for js/ts files
+autocmd("BufWritePre", {
+  pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
+  callback = function()
+    local clients = vim.lsp.get_clients { bufnr = 0, name = "ts_ls" }
+    for _, client in ipairs(clients) do
+      client:request_sync("workspace/executeCommand", {
+        command = "_typescript.organizeImports",
+        arguments = { vim.api.nvim_buf_get_name(0) },
+      }, 3000, 0)
+    end
+  end,
+})
+
+-- Restore cursor position on file open
+autocmd("BufReadPost", {
+  pattern = "*",
+  callback = function()
+    local line = vim.fn.line "'\""
+    if
+      line > 1
+      and line <= vim.fn.line "$"
+      and vim.bo.filetype ~= "commit"
+      and vim.fn.index({ "xxd", "gitrebase" }, vim.bo.filetype) == -1
+    then
+      vim.cmd 'normal! g`"'
+    end
+  end,
+})
+
+-- Show Nvdash when all buffers are closed
+autocmd("BufDelete", {
+  callback = function()
+    local bufs = vim.t.bufs
+    if #bufs == 1 and vim.api.nvim_buf_get_name(bufs[1]) == "" then
+      vim.cmd "Nvdash"
     end
   end,
 })
