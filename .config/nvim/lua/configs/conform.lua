@@ -9,6 +9,11 @@ local options = {
 
     json = { "prettierd", "prettier", stop_after_first = true },
     markdown = { "prettierd", "prettier", stop_after_first = true },
+    mdx = { "prettierd", "prettier", stop_after_first = true },
+
+    sh = { "shfmt" },
+    bash = { "shfmt" },
+    zsh = { "shfmt" },
 
     javascript = { "prettierd", "prettier", stop_after_first = true },
     javascriptreact = { "prettierd", "prettier", stop_after_first = true },
