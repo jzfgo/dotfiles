@@ -51,12 +51,23 @@ return {
     "nvim-treesitter/nvim-treesitter",
     opts = {
       ensure_installed = {
-        "vim", "lua", "vimdoc",
-        "html", "css",
-        "javascript", "typescript", "tsx",
+        "vim",
+        "lua",
+        "vimdoc",
+        "html",
+        "css",
+        "javascript",
+        "typescript",
+        "tsx",
         "python",
-        "markdown", "markdown_inline",
-        "yaml", "dockerfile", "graphql", "bash", "terraform", "proto",
+        "markdown",
+        "markdown_inline",
+        "yaml",
+        "dockerfile",
+        "graphql",
+        "bash",
+        "terraform",
+        "proto",
       },
     },
   },
@@ -155,7 +166,7 @@ return {
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewFileHistory" },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>",          desc = "Diff view" },
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diff view" },
       { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history" },
     },
   },
@@ -164,10 +175,34 @@ return {
   {
     "mfussenegger/nvim-dap",
     keys = {
-      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
-      { "<leader>dc", function() require("dap").continue() end,          desc = "DAP continue" },
-      { "<leader>di", function() require("dap").step_into() end,         desc = "Step into" },
-      { "<leader>do", function() require("dap").step_over() end,         desc = "Step over" },
+      {
+        "<leader>db",
+        function()
+          require("dap").toggle_breakpoint()
+        end,
+        desc = "Toggle breakpoint",
+      },
+      {
+        "<leader>dc",
+        function()
+          require("dap").continue()
+        end,
+        desc = "DAP continue",
+      },
+      {
+        "<leader>di",
+        function()
+          require("dap").step_into()
+        end,
+        desc = "Step into",
+      },
+      {
+        "<leader>do",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "Step over",
+      },
     },
   },
 
@@ -176,14 +211,26 @@ return {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
     keys = {
-      { "<leader>du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+      {
+        "<leader>du",
+        function()
+          require("dapui").toggle()
+        end,
+        desc = "Toggle DAP UI",
+      },
     },
     config = function()
       local dap, dapui = require "dap", require "dapui"
       dapui.setup()
-      dap.listeners.after.event_initialized["dapui_config"]  = function() dapui.open() end
-      dap.listeners.before.event_terminated["dapui_config"]  = function() dapui.close() end
-      dap.listeners.before.event_exited["dapui_config"]      = function() dapui.close() end
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+      end
     end,
   },
 
@@ -204,8 +251,20 @@ return {
     ft = "json",
     opts = {},
     keys = {
-      { "<leader>ns", function() require("package-info").show() end,   desc = "Show package versions" },
-      { "<leader>nu", function() require("package-info").update() end, desc = "Update package" },
+      {
+        "<leader>ns",
+        function()
+          require("package-info").show()
+        end,
+        desc = "Show package versions",
+      },
+      {
+        "<leader>nu",
+        function()
+          require("package-info").update()
+        end,
+        desc = "Update package",
+      },
     },
   },
 

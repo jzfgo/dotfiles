@@ -56,3 +56,35 @@ autocmd("BufDelete", {
     end
   end,
 })
+
+-- Custom surrounds by filetype, e.g. for markdown files
+autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    require("nvim-surround").buffer_setup {
+      surrounds = {
+        ["l"] = {
+          add = function()
+            local clipboard = vim.fn.getreg("+"):gsub("\n", "")
+            return {
+              { "[" },
+              { "](" .. clipboard .. ")" },
+            }
+          end,
+          find = "%b[]%b()",
+          delete = "^(%[)().-(%]%b())()$",
+          change = {
+            target = "^()()%b[]%((.-)()%)$",
+            replacement = function()
+              local clipboard = vim.fn.getreg("+"):gsub("\n", "")
+              return {
+                { "" },
+                { clipboard },
+              }
+            end,
+          },
+        },
+      },
+    }
+  end,
+})
