@@ -90,6 +90,32 @@ return {
     end,
   },
 
+  {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim", branch = "master" },
+    },
+    build = "make tiktoken",
+    cmd = { "CopilotChat", "CopilotChatOpen", "CopilotChatToggle" },
+    keys = {
+      { "<leader>cc", "<cmd>CopilotChatToggle<cr>", desc = "Toggle CopilotChat" },
+      { "<leader>ce", "<cmd>CopilotChatExplain<cr>", mode = { "n", "v" }, desc = "Explain" },
+      { "<leader>cf", "<cmd>CopilotChatFix<cr>", mode = { "n", "v" }, desc = "Fix" },
+      { "<leader>ct", "<cmd>CopilotChatTests<cr>", mode = { "n", "v" }, desc = "Generate tests" },
+      { "<leader>cr", "<cmd>CopilotChatReview<cr>", mode = { "n", "v" }, desc = "Review" },
+    },
+    opts = {
+      model = "gpt-4.1",
+      temperature = 0.1,
+      trusted_tools = nil,
+      window = {
+        layout = "vertical",
+        width = 0.5,
+      },
+      auto_insert_mode = true,
+    },
+  },
+
   -- surround: ys/cs/ds to add/change/delete surrounding chars
   {
     "kylechui/nvim-surround",
