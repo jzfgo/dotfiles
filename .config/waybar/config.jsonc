@@ -1,8 +1,8 @@
 {
     "position": "top",
     "margin-top": 20,
-    "margin-left": 5,
-    "margin-right": 5,
+    "margin-left": 20,
+    "margin-right": 20,
     "modules-left": [
         "clock",
         "hyprland/workspaces"
@@ -13,14 +13,11 @@
     "modules-right": [
         "tray",
         "pulseaudio",
-        "cpu",
-        "memory",
+        "group/system",
         "custom/gpu-usage",
         "network",
         "battery",
-        "idle_inhibitor",
-        "custom/notification",
-        "custom/power"
+        "group/controls"
     ],
     "clock": {
         "interval": 60,
@@ -34,8 +31,8 @@
         }
     },
     "wlr/taskbar": {
-        "format": "{icon}   {name}",
-        "icon-size": 14,
+        "format": "{icon} {name}",
+        "icon-size": 18,
         "icon-theme": "Numix-Circle",
         "tooltip-format": "{title}",
         "on-click": "activate",
@@ -53,7 +50,7 @@
         }
     },
     "idle_inhibitor": {
-        "format": "{icon}",
+        "format": " {icon} ",
         "format-icons": {
             "activated": "",
             "deactivated": ""
@@ -61,11 +58,11 @@
         "on-click": "bash -lc 'systemctl --user is-enabled --quiet hypridle && systemctl --user disable --now hypridle || systemctl --user enable --now hypridle'"
     },
     "tray": {
-        "icon-size": 21,
-        "spacing": 10
+        "icon-size": 18,
+        "spacing": 8
     },
     "pulseaudio": {
-        "format": "{volume}% {icon}",
+        "format": "{volume}%  {icon}",
         "format-bluetooth": "{volume}% {icon}",
         "format-muted": "",
         "format-icons": {
@@ -91,22 +88,11 @@
     },
     "cpu": {
         "interval": 1,
-        "format": "{icon} \uf4bc",
-        "format-icons": [
-            "<span color='#69ff94'>⡀</span>",
-            "<span color='#2aa9ff'>⡄</span>",
-            "<span color='#f8f8f2'>⡆</span>",
-            "<span color='#f8f8f2'>⡇</span>",
-            "<span color='#ffffa5'>⣇</span>",
-            "<span color='#ffffa5'>⣧</span>",
-            "<span color='#ff9977'>⣷</span>",
-            "<span color='#dd532e'>⣿</span>"
-        ]
+        "format": "{usage}%   "
     },
     "memory": {
         "interval": 30,
-        "format": "{}% 󰆼",
-        "max-length": 10
+        "format": "{}%  󰆼 ",
     },
     "custom/gpu-usage": {
         "format": "{} {icon}", /* "{text} {icon}" for nightly users */
@@ -129,8 +115,8 @@
     },
     "battery": {
         "interval": 60,
-        "format": "{capacity}% {icon}",
-        "format-charging": "{capacity}% 󰂄",
+        "format": "{capacity}%  {icon}",
+        "format-charging": "{capacity}%  󰂄",
         "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "states": {
             "warning": 30,
@@ -138,9 +124,17 @@
         },
         "tooltip-format": "{timeTo}\nCapacity: {capacity}%\nPower draw: {power}W"
     },
-    "custom/notification": {
+    "group/system": {
+        "orientation": "horizontal",
+        "modules": ["cpu", "memory"]
+    },
+    "group/controls": {
+        "orientation": "horizontal",
+        "modules": ["idle_inhibitor", "custom/notification", "custom/power"]
+    },
+        "custom/notification": {
         "tooltip": true,
-        "format": "<span size='16pt'>{icon}</span>",
+        "format": " {icon} ",
         "format-icons": {
             "notification": "󱅫",
             "none": "󰂜",
@@ -159,7 +153,7 @@
         "escape": true
     },
     "custom/power": {
-        "format": "<span size='12pt'>⏻</span>",
+        "format": " ⏻",
         "on-click": "wlogout -b 2 -c 0 -r 0",
         "tooltip": false
     }
