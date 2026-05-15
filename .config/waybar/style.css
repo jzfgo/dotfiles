@@ -77,7 +77,7 @@ tooltip label {
 #tray,
 #cpu,
 #memory,
-#power-profiles-daemon,
+#battery,
 #idle_inhibitor,
 #custom-notification,
 #custom-power {
@@ -107,4 +107,21 @@ tooltip label {
 
 #network {
     color: @purple;
+}
+
+#battery {
+    color: @green;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @cyan;
+}
+
+#battery.warning:not(.charging) {
+    color: @orange;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
 }
