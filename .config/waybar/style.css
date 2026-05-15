@@ -96,6 +96,7 @@ tooltip label {
 #system #cpu,
 #system #memory,
 #controls #idle-inhibitor,
+#controls #idle_inhibitor,
 #controls #custom-notification,
 #controls #custom-power {
     background: transparent;
@@ -111,7 +112,8 @@ tooltip label {
 }
 
 /* Per-icon sizes — glyphs have very different visual weights at the same pt size */
-#idle-inhibitor { font-size: 14px; }
+#idle-inhibitor,
+#idle_inhibitor { font-size: 14px; }
 #custom-notification { font-size: 12px; }
 #custom-power { font-size: 18px; }
 
@@ -121,6 +123,7 @@ tooltip label {
 }
 
 #idle-inhibitor,
+#idle_inhibitor,
 #custom-notification,
 #custom-power {
     color: @fg;
