@@ -111,11 +111,6 @@ tooltip label {
     margin-left: 10px;
 }
 
-/* Per-icon sizes — glyphs have very different visual weights at the same pt size */
-#idle-inhibitor,
-#idle_inhibitor { font-size: 14px; }
-#custom-notification { font-size: 12px; }
-#custom-power { font-size: 18px; }
 
 #cpu,
 #memory {
