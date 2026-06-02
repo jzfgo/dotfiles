@@ -57,3 +57,13 @@ POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS+=my_zmx_session
 if [[ -f "$HOME/.config/broot/launcher/bash/br" ]]; then
   source "$HOME/.config/broot/launcher/bash/br"
 fi
+
+# bun
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Added by Antigravity CLI installer
+export PATH="$HOME/.local/bin:$PATH"
+
+if command -v wt >/dev/null 2>&1; then eval "$(wt config shell init zsh)"; fi
