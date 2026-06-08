@@ -40,10 +40,18 @@ case "$(uname -s)" in
     done
     touch "$KITTY_APP"
 
-    # Flush per-user icon caches (no sudo needed on macOS 12+)
+    # Flush icon caches: user-level (no sudo) + system-level Dock cache (sudo)
     rm -rf "$HOME/Library/Caches/com.apple.IconServicesAgent" 2>/dev/null || true
     find "$HOME/Library/Caches" -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
+    sudo find /private/var/folders/ -name "com.apple.dock.iconcache" -exec rm -f {} + 2>/dev/null || true
+    sudo find /private/var/folders/ -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
+
+    # Rebuild Launch Services database so Finder/Spotlight pick up the new icon
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+      -r -domain local -domain system -domain user 2>/dev/null || true
+
     killall Dock
+    killall Finder 2>/dev/null || true
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
     ;;
