@@ -26,12 +26,18 @@ case "$(uname -s)" in
     fi
 
     KITTY_APP="/Applications/kitty.app"
-    if [[ ! -d "$KITTY_APP" ]]; then
-      echo "error: kitty.app not found at $KITTY_APP" >&2
-      exit 1
-    fi
 
-    cp "$ICON_DARK_ICNS" "$KITTY_APP/Contents/Resources/kitty.icns"
+    # When triggered by the LaunchAgent WatchPaths fires the moment Homebrew
+    # starts replacing the bundle — the icns may not exist yet or be locked.
+    # Retry for up to ~30s to let the install finish.
+    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
+    for i in $(seq 1 10); do
+      if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
+        break
+      fi
+      [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
+      sleep 3
+    done
     touch "$KITTY_APP"
 
     # Flush per-user icon caches (no sudo needed on macOS 12+)
