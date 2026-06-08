@@ -9,7 +9,8 @@
     <array>
         <string>/bin/sh</string>
         <string>-c</string>
-        <string>exec "$HOME/.config/kitty/set-kitty-icon.sh"</string>
+        <!-- Redirect logs here because launchd does not expand $HOME in path keys -->
+        <string>exec "$HOME/.config/kitty/set-kitty-icon.sh" >> "$HOME/Library/Logs/kitty-icon.log" 2>&amp;1</string>
     </array>
 
     <!-- Fire when the kitty app bundle is replaced (e.g. after brew upgrade kitty) -->
@@ -20,10 +21,5 @@
 
     <key>RunAtLoad</key>
     <false/>
-
-    <key>StandardOutPath</key>
-    <string>/tmp/kitty-icon.log</string>
-    <key>StandardErrorPath</key>
-    <string>/tmp/kitty-icon-error.log</string>
 </dict>
 </plist>

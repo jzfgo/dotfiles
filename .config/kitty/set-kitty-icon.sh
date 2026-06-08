@@ -31,7 +31,7 @@ case "$(uname -s)" in
     # starts replacing the bundle — the icns may not exist yet or be locked.
     # Retry for up to ~30s to let the install finish.
     ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
-    for i in $(seq 1 10); do
+    for i in {1..10}; do
       if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
@@ -47,17 +47,22 @@ case "$(uname -s)" in
     codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
 
-    # Flush icon caches: user-level (no sudo) + system-level Dock cache (sudo)
+    # Flush user-level icon caches (no sudo required)
     rm -rf "$HOME/Library/Caches/com.apple.IconServicesAgent" 2>/dev/null || true
     find "$HOME/Library/Caches" -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
-    sudo find /private/var/folders/ -name "com.apple.dock.iconcache" -exec rm -f {} + 2>/dev/null || true
-    sudo find /private/var/folders/ -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
+
+    # Flush system-level Dock cache — only if passwordless sudo is available
+    # (the LaunchAgent has no TTY so interactive sudo would silently fail)
+    if sudo -n true 2>/dev/null; then
+      sudo find /private/var/folders/ -name "com.apple.dock.iconcache" -exec rm -f {} + 2>/dev/null || true
+      sudo find /private/var/folders/ -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
+    fi
 
     # Rebuild Launch Services database so Finder/Spotlight pick up the new icon
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
       -r -domain local -domain system -domain user 2>/dev/null || true
 
-    killall Dock
+    killall Dock || true
     killall Finder 2>/dev/null || true
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
