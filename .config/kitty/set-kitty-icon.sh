@@ -19,6 +19,7 @@ _install_launchagent() {
     exit 1
   fi
   mkdir -p "$HOME/Library/LaunchAgents"
+  rm -f "$PLIST_DEST"
   cp -f "$PLIST_SRC" "$PLIST_DEST"
   chmod 644 "$PLIST_DEST"
   # bootstrap is idempotent on already-loaded services; unload first if needed
