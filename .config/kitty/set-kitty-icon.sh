@@ -53,10 +53,10 @@ case "$(uname -s)" in
     # without needing sudo (the user owns their own folders subtree).
     rm -rf "$HOME/Library/Caches/com.apple.IconServicesAgent" 2>/dev/null || true
     rm -rf "$HOME/Library/Caches/com.apple.iconservices" 2>/dev/null || true
-    _user_cache="$(getconf DARWIN_USER_CACHE_DIR 2>/dev/null)"
-    if [[ -n "$_user_cache" ]]; then
-      rm -f "${_user_cache}com.apple.dock.iconcache" 2>/dev/null || true
-      rm -rf "${_user_cache}com.apple.iconservices" 2>/dev/null || true
+    _user_tmp="$(getconf DARWIN_USER_TEMP_DIR 2>/dev/null || true)"
+    if [[ -n "$_user_tmp" ]]; then
+      rm -f "${_user_tmp}com.apple.dock.iconcache" 2>/dev/null || true
+      rm -rf "${_user_tmp}com.apple.iconservices" 2>/dev/null || true
     fi
 
     # Rebuild Launch Services database so Finder/Spotlight pick up the new icon
