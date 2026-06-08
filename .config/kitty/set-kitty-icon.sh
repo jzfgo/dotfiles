@@ -6,7 +6,7 @@ if [[ $EUID -eq 0 ]]; then
   exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null && pwd)"
 ICON_DARK_ICNS="$SCRIPT_DIR/icon/kitty-dark.icns"
 ICON_DARK_PNG="$SCRIPT_DIR/icon/kitty-dark.png"
 PLIST_SRC="$SCRIPT_DIR/com.user.kitty-icon.plist"
@@ -91,6 +91,15 @@ case "$(uname -s)" in
     # Clear xattrs (quarantine, FinderInfo, etc.) that codesign rejects as "detritus".
     xattr -cr "$KITTY_APP" || true
 
+    # If kitty is running, its executable inode is write-protected by the kernel
+    # (ETXTBSY). Unlink the active inode by swapping in a fresh copy so codesign
+    # can write the new signature without encountering a busy-text error.
+    EXE_PATH="$KITTY_APP/Contents/MacOS/kitty"
+    if [[ -f "$EXE_PATH" ]]; then
+      cp "$EXE_PATH" "${EXE_PATH}.tmp"
+      mv -f "${EXE_PATH}.tmp" "$EXE_PATH"
+    fi
+
     # Re-sign ad-hoc after modifying sealed resources; preserve existing entitlements
     # (JIT, library-validation exceptions, etc.) that kitty may carry.
     codesign --force --deep --sign - --preserve-metadata=entitlements,flags "$KITTY_APP"
@@ -136,6 +145,7 @@ case "$(uname -s)" in
     DESKTOP_SRC=""
     IFS=: read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
     for _dir in "${_xdg_dirs[@]}"; do
+      [[ -d "$_dir" ]] || continue
       candidate="$_dir/applications/kitty.desktop"
       if [[ -f "$candidate" ]]; then
         DESKTOP_SRC="$candidate"
