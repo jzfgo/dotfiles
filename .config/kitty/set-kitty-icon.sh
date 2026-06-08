@@ -131,15 +131,15 @@ case "$(uname -s)" in
 
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
     if [[ -n "$DESKTOP_SRC" ]]; then
-      if ! grep -q '^Icon=kitty$' "$DESKTOP_SRC"; then
+      if ! grep -q '^[[:space:]]*Icon[[:space:]]*=[[:space:]]*kitty$' "$DESKTOP_SRC"; then
         # Only write/overwrite if we own the file (signature comment) or it doesn't exist yet.
         # This preserves user-modified overrides while keeping our managed copy up to date.
         if [[ ! -f "$DESKTOP_DEST" ]] || grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
           mkdir -p "$(dirname "$DESKTOP_DEST")"
           cp "$DESKTOP_SRC" "$DESKTOP_DEST"
           chmod +w "$DESKTOP_DEST"
-          if grep -q '^Icon=' "$DESKTOP_DEST"; then
-            sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+          if grep -q '^[[:space:]]*Icon[[:space:]]*=' "$DESKTOP_DEST"; then
+            sed -i 's|^[[:space:]]*Icon[[:space:]]*=.*|Icon=kitty|' "$DESKTOP_DEST"
           else
             sed -i '/^\[Desktop Entry\]$/a Icon=kitty' "$DESKTOP_DEST"
           fi
