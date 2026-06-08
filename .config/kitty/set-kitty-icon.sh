@@ -148,7 +148,7 @@ case "$(uname -s)" in
           if grep -q '^[[:space:]]*Icon[[:space:]]*=' "$DESKTOP_DEST"; then
             sed -i 's|^[[:space:]]*Icon[[:space:]]*=.*|Icon=kitty|' "$DESKTOP_DEST"
           else
-            sed -i '/^\[Desktop Entry\]$/a Icon=kitty' "$DESKTOP_DEST"
+            sed -i '/^\[Desktop Entry\][[:space:]]*$/a Icon=kitty' "$DESKTOP_DEST"
           fi
           echo "# Modified by set-kitty-icon.sh" >> "$DESKTOP_DEST"
         fi
