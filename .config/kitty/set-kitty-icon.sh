@@ -65,16 +65,14 @@ case "$(uname -s)" in
     # --watch: WatchPaths fires while Homebrew is mid-install and the bundle is
     # temporarily absent — let the retry loop handle the missing directory.
     for i in {1..10}; do
-      if [[ -d "$KITTY_APP" ]] && [[ ! -w "$KITTY_APP" ]]; then
-        echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
-        exit 1
-      fi
       if [[ -d "$KITTY_APP/Contents/Resources" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
       if [[ $i -eq 10 ]]; then
         if [[ ! -d "$KITTY_APP" ]]; then
           echo "error: kitty not found at $KITTY_APP" >&2
+        elif [[ ! -w "$KITTY_APP" ]]; then
+          echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
         else
           echo "error: could not write to $ICNS_DEST after retries" >&2
         fi
@@ -96,7 +94,7 @@ case "$(uname -s)" in
     # can write the new signature without encountering a busy-text error.
     EXE_PATH="$KITTY_APP/Contents/MacOS/kitty"
     if [[ -f "$EXE_PATH" ]]; then
-      cp "$EXE_PATH" "${EXE_PATH}.tmp"
+      cp -p "$EXE_PATH" "${EXE_PATH}.tmp"
       mv -f "${EXE_PATH}.tmp" "$EXE_PATH"
     fi
 
