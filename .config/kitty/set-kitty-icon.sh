@@ -38,8 +38,12 @@ case "$(uname -s)" in
       [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
       sleep 3
     done
-    # Replacing kitty.icns breaks the sealed resource signature — re-sign with
-    # an ad-hoc identity so macOS trusts the bundle and shows the new icon.
+    # macOS prefers CFBundleIconName (asset catalog) over CFBundleIconFile (.icns).
+    # Remove it so the system falls back to kitty.icns, which we control.
+    /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
+      "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
+
+    # Both kitty.icns and Info.plist are sealed resources — re-sign after editing.
     codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
 
