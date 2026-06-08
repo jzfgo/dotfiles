@@ -137,7 +137,7 @@ case "$(uname -s)" in
     cp "$ICON_DARK_PNG" "$ICON_DEST/kitty.png"
 
     if command -v gtk-update-icon-cache &>/dev/null; then
-      gtk-update-icon-cache --force --quiet "$HICOLOR_DIR" || true
+      gtk-update-icon-cache --force --quiet --ignore-theme-index "$HICOLOR_DIR" || true
     fi
 
     # Create a user-level .desktop override only when the system entry uses a
@@ -145,7 +145,7 @@ case "$(uname -s)" in
     # in that case the hicolor entry above is sufficient and no override is needed.
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
     DESKTOP_SRC=""
-    IFS=: read -ra _xdg_dirs < <(printf '%s' "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}")
+    IFS=: read -ra _xdg_dirs < <(printf '%s\n' "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}")
     for _dir in "${_xdg_dirs[@]}"; do
       [[ -d "$_dir" ]] || continue
       candidate="$_dir/applications/kitty.desktop"
