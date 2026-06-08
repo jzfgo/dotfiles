@@ -34,6 +34,18 @@ case "$(uname -s)" in
       exit 0
     fi
 
+    # In interactive sessions fail fast — the retry loop is only for launchd
+    # WatchPaths firing mid-upgrade when the bundle is transiently absent.
+    if [[ -t 1 ]] && [[ ! -d "$KITTY_APP" ]]; then
+      echo "error: kitty not found at $KITTY_APP" >&2
+      exit 1
+    fi
+
+    if [[ -d "$KITTY_APP" ]] && [[ ! -w "$KITTY_APP" ]]; then
+      echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
+      exit 1
+    fi
+
     # WatchPaths fires while Homebrew is mid-install and the bundle is temporarily
     # absent — no fast-fail here; let the retry loop handle the missing directory.
     for i in {1..10}; do
@@ -82,10 +94,13 @@ case "$(uname -s)" in
     # Create or patch a user-level .desktop override so the window manager
     # picks up the icon even if the system .desktop entry has an absolute path.
     DESKTOP_SRC=""
-    for candidate in \
-      "/usr/share/applications/kitty.desktop" \
-      "/usr/local/share/applications/kitty.desktop"; do
-      [[ -f "$candidate" ]] && DESKTOP_SRC="$candidate" && break
+    IFS=: read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    for _dir in "${_xdg_dirs[@]}"; do
+      candidate="$_dir/applications/kitty.desktop"
+      if [[ -f "$candidate" ]]; then
+        DESKTOP_SRC="$candidate"
+        break
+      fi
     done
 
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
