@@ -28,24 +28,29 @@ case "$(uname -s)" in
 
     [[ -d "$KITTY_APP" ]] || { echo "error: kitty not found at $KITTY_APP" >&2; exit 1; }
 
-    # Use NSWorkspace API via osascript to set the icon as a Finder extended attribute.
-    # This keeps the app bundle's sealed resources, code signature, entitlements, and
-    # system permissions (Accessibility, Input Monitoring, etc.) fully intact.
-    # WatchPaths can fire while Homebrew is mid-install, so retry for up to ~30s.
+    # WatchPaths fires the moment Homebrew starts replacing the bundle — the icns
+    # may not exist yet. Retry for up to ~30s to let the install finish.
+    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
     for i in {1..10}; do
-      if [[ -d "$KITTY_APP" ]] && \
-         [[ "$(osascript \
-           -e 'use framework "Cocoa"' \
-           -e "set image to (current application's NSImage's alloc()'s initWithContentsOfFile:\"$ICON_DARK_ICNS\")" \
-           -e "set workspace to (current application's NSWorkspace's sharedWorkspace())" \
-           -e "workspace's setIcon:image forFile:\"$KITTY_APP\" options:0" \
-           2>/dev/null)" == "true" ]]; then
+      if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
-      [[ $i -eq 10 ]] && { echo "error: failed to set custom icon after retries" >&2; exit 1; }
+      [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
       sleep 3
     done
+
+    # macOS prefers CFBundleIconName (asset catalog) over CFBundleIconFile (.icns).
+    # Remove it so the system reads kitty.icns, which we control.
+    /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
+      "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
+
+    # kitty ships ad-hoc signed (no TeamIdentifier, no entitlements). Re-signing
+    # ad-hoc after modifying sealed resources restores bundle validity without
+    # changing the security posture.
+    codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
+
+    killall Dock || true
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
     ;;
