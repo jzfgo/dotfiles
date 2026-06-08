@@ -76,7 +76,11 @@ case "$(uname -s)" in
     # Flush Launch Services DB so Dock/Finder pick up the new icon immediately.
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$KITTY_APP" || true
 
-    killall Dock || true
+    # Only restart the Dock interactively — in --watch mode the user is working
+    # and a background Dock restart would cause disruptive screen flickering.
+    if [[ "${1:-}" != "--watch" ]]; then
+      killall Dock || true
+    fi
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
 
@@ -119,7 +123,11 @@ case "$(uname -s)" in
         if [[ ! -f "$DESKTOP_DEST" ]] || grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
           mkdir -p "$(dirname "$DESKTOP_DEST")"
           cp "$DESKTOP_SRC" "$DESKTOP_DEST"
-          sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+          if grep -q '^Icon=' "$DESKTOP_DEST"; then
+            sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+          else
+            echo "Icon=kitty" >> "$DESKTOP_DEST"
+          fi
           echo "# Modified by set-kitty-icon.sh" >> "$DESKTOP_DEST"
         fi
       else
