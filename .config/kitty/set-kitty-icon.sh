@@ -31,9 +31,11 @@ case "$(uname -s)" in
       exit 1
     fi
 
-    # Exit early if our icon is already in place — every write this script makes
-    # to the bundle would re-trigger WatchPaths, creating an infinite launchd loop.
-    if cmp -s "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
+    # Exit early if our icon is already in place AND CFBundleIconName is gone.
+    # Checking both prevents a partial-run scenario (cp done, plist not yet patched)
+    # from being mistaken for a fully applied state.
+    if cmp -s "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null && \
+       ! /usr/libexec/PlistBuddy -c "Print :CFBundleIconName" "$KITTY_APP/Contents/Info.plist" &>/dev/null; then
       echo "kitty icon already applied"
       # --install re-registers the LaunchAgent even when the icon is current
       if [[ "${1:-}" == "--install" ]]; then
