@@ -28,43 +28,24 @@ case "$(uname -s)" in
 
     [[ -d "$KITTY_APP" ]] || { echo "error: kitty not found at $KITTY_APP" >&2; exit 1; }
 
-    # When triggered by the LaunchAgent WatchPaths fires the moment Homebrew
-    # starts replacing the bundle — the icns may not exist yet or be locked.
-    # Retry for up to ~30s to let the install finish.
-    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
+    # Use NSWorkspace API via osascript to set the icon as a Finder extended attribute.
+    # This keeps the app bundle's sealed resources, code signature, entitlements, and
+    # system permissions (Accessibility, Input Monitoring, etc.) fully intact.
+    # WatchPaths can fire while Homebrew is mid-install, so retry for up to ~30s.
     for i in {1..10}; do
-      if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
+      if [[ -d "$KITTY_APP" ]] && \
+         [[ "$(osascript \
+           -e 'use framework "Cocoa"' \
+           -e "set image to (current application's NSImage's alloc()'s initWithContentsOfFile:\"$ICON_DARK_ICNS\")" \
+           -e "set workspace to (current application's NSWorkspace's sharedWorkspace())" \
+           -e "workspace's setIcon:image forFile:\"$KITTY_APP\" options:0" \
+           2>/dev/null)" == "true" ]]; then
         break
       fi
-      [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
+      [[ $i -eq 10 ]] && { echo "error: failed to set custom icon after retries" >&2; exit 1; }
       sleep 3
     done
-    # macOS prefers CFBundleIconName (asset catalog) over CFBundleIconFile (.icns).
-    # Remove it so the system falls back to kitty.icns, which we control.
-    /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
-      "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
-
-    # Both kitty.icns and Info.plist are sealed resources — re-sign after editing.
-    codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
-
-    # Flush icon caches — target known paths directly rather than scanning with find.
-    # getconf DARWIN_USER_CACHE_DIR gives the user-owned cache subdir of /private/var/folders/
-    # without needing sudo (the user owns their own folders subtree).
-    rm -rf "$HOME/Library/Caches/com.apple.IconServicesAgent" 2>/dev/null || true
-    rm -rf "$HOME/Library/Caches/com.apple.iconservices" 2>/dev/null || true
-    _user_tmp="$(getconf DARWIN_USER_TEMP_DIR 2>/dev/null || true)"
-    if [[ -n "$_user_tmp" ]]; then
-      rm -f "${_user_tmp}com.apple.dock.iconcache" 2>/dev/null || true
-      rm -rf "${_user_tmp}com.apple.iconservices" 2>/dev/null || true
-    fi
-
-    # Rebuild Launch Services database so Finder/Spotlight pick up the new icon
-    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
-      -r -domain local -domain system -domain user 2>/dev/null || true
-
-    killall Dock || true
-    killall Finder 2>/dev/null || true
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
     ;;
