@@ -144,6 +144,8 @@ case "$(uname -s)" in
     # in that case the hicolor entry above is sufficient and no override is needed.
     DESKTOP_SRC=""
     IFS=: read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    # IFS=: excludes newline, so <<< appends \n to the last element — strip it.
+    _xdg_dirs[${#_xdg_dirs[@]}-1]="${_xdg_dirs[${#_xdg_dirs[@]}-1]%$'\n'}"
     for _dir in "${_xdg_dirs[@]}"; do
       [[ -d "$_dir" ]] || continue
       candidate="$_dir/applications/kitty.desktop"
