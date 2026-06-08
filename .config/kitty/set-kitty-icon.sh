@@ -26,16 +26,21 @@ case "$(uname -s)" in
 
     KITTY_APP="/Applications/kitty.app"
 
-    [[ -d "$KITTY_APP" ]] || { echo "error: kitty not found at $KITTY_APP" >&2; exit 1; }
-
-    # WatchPaths fires the moment Homebrew starts replacing the bundle — the icns
-    # may not exist yet. Retry for up to ~30s to let the install finish.
+    # WatchPaths fires while Homebrew is mid-install and the bundle is temporarily
+    # absent — no fast-fail here; let the retry loop handle the missing directory.
     ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
     for i in {1..10}; do
       if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
-      [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
+      if [[ $i -eq 10 ]]; then
+        if [[ ! -d "$KITTY_APP" ]]; then
+          echo "error: kitty not found at $KITTY_APP" >&2
+        else
+          echo "error: could not write to $ICNS_DEST after retries" >&2
+        fi
+        exit 1
+      fi
       sleep 3
     done
 
@@ -75,7 +80,7 @@ case "$(uname -s)" in
     done
 
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
-    if [[ -n "$DESKTOP_SRC" && ! -f "$DESKTOP_DEST" ]]; then
+    if [[ -n "$DESKTOP_SRC" ]] && [[ ! -f "$DESKTOP_DEST" || "$DESKTOP_SRC" -nt "$DESKTOP_DEST" ]]; then
       mkdir -p "$(dirname "$DESKTOP_DEST")"
       cp "$DESKTOP_SRC" "$DESKTOP_DEST"
     fi
