@@ -38,6 +38,9 @@ case "$(uname -s)" in
       [[ $i -eq 10 ]] && { echo "error: could not write to $ICNS_DEST after retries" >&2; exit 1; }
       sleep 3
     done
+    # Replacing kitty.icns breaks the sealed resource signature — re-sign with
+    # an ad-hoc identity so macOS trusts the bundle and shows the new icon.
+    codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
 
     # Flush icon caches: user-level (no sudo) + system-level Dock cache (sudo)
