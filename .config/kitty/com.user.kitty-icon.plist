@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/sh</string>
+        <string>/bin/bash</string>
         <string>-c</string>
         <!-- Redirect logs here because launchd does not expand $HOME in path keys -->
         <string>exec "$HOME/.config/kitty/set-kitty-icon.sh" >> "$HOME/Library/Logs/kitty-icon.log" 2>&amp;1</string>

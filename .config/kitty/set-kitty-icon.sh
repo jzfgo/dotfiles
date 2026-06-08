@@ -22,10 +22,11 @@ case "$(uname -s)" in
     # --install: register the LaunchAgent that re-runs this script on kitty updates
     if [[ "${1:-}" == "--install" ]]; then
       _install_launchagent
-      exit 0
     fi
 
     KITTY_APP="/Applications/kitty.app"
+
+    [[ -d "$KITTY_APP" ]] || { echo "error: kitty not found at $KITTY_APP" >&2; exit 1; }
 
     # When triggered by the LaunchAgent WatchPaths fires the moment Homebrew
     # starts replacing the bundle — the icns may not exist yet or be locked.
@@ -47,15 +48,15 @@ case "$(uname -s)" in
     codesign --force --deep --sign - "$KITTY_APP"
     touch "$KITTY_APP"
 
-    # Flush user-level icon caches (no sudo required)
+    # Flush icon caches — target known paths directly rather than scanning with find.
+    # getconf DARWIN_USER_CACHE_DIR gives the user-owned cache subdir of /private/var/folders/
+    # without needing sudo (the user owns their own folders subtree).
     rm -rf "$HOME/Library/Caches/com.apple.IconServicesAgent" 2>/dev/null || true
-    find "$HOME/Library/Caches" -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
-
-    # Flush system-level Dock cache — only if passwordless sudo is available
-    # (the LaunchAgent has no TTY so interactive sudo would silently fail)
-    if sudo -n true 2>/dev/null; then
-      sudo find /private/var/folders/ -name "com.apple.dock.iconcache" -exec rm -f {} + 2>/dev/null || true
-      sudo find /private/var/folders/ -name "com.apple.iconservices" -exec rm -rf {} + 2>/dev/null || true
+    rm -rf "$HOME/Library/Caches/com.apple.iconservices" 2>/dev/null || true
+    _user_cache="$(getconf DARWIN_USER_CACHE_DIR 2>/dev/null)"
+    if [[ -n "$_user_cache" ]]; then
+      rm -f "${_user_cache}com.apple.dock.iconcache" 2>/dev/null || true
+      rm -rf "${_user_cache}com.apple.iconservices" 2>/dev/null || true
     fi
 
     # Rebuild Launch Services database so Finder/Spotlight pick up the new icon
