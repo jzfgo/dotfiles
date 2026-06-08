@@ -13,10 +13,12 @@
         <string>mkdir -p "$HOME/Library/Logs" &amp;&amp; exec /bin/bash "$HOME/.config/kitty/set-kitty-icon.sh" --watch >> "$HOME/Library/Logs/kitty-icon.log" 2>&amp;1</string>
     </array>
 
-    <!-- Fire when the kitty app bundle is replaced (e.g. after brew upgrade kitty) -->
+    <!-- Watch /Applications (not kitty.app directly): launchd loses the WatchPaths
+         vnode watch when kitty.app is deleted and recreated during brew upgrade,
+         because the old inode is unlinked. The parent directory inode is stable. -->
     <key>WatchPaths</key>
     <array>
-        <string>/Applications/kitty.app</string>
+        <string>/Applications</string>
     </array>
 
     <key>RunAtLoad</key>

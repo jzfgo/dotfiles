@@ -65,11 +65,11 @@ case "$(uname -s)" in
 
     # --watch: WatchPaths fires while Homebrew is mid-install and the bundle is
     # temporarily absent — let the retry loop handle the missing directory.
-    for i in {1..10}; do
+    for i in {1..5}; do
       if [[ -d "$KITTY_APP/Contents/Resources" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
-      if [[ $i -eq 10 ]]; then
+      if [[ $i -eq 5 ]]; then
         if [[ ! -d "$KITTY_APP" ]]; then
           echo "error: kitty not found at $KITTY_APP" >&2
         elif [[ ! -w "$KITTY_APP" ]]; then
@@ -79,7 +79,7 @@ case "$(uname -s)" in
         fi
         exit 1
       fi
-      sleep 3
+      sleep 1
     done
 
     # macOS prefers CFBundleIconName (asset catalog) over CFBundleIconFile (.icns).
