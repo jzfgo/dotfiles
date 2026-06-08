@@ -142,6 +142,7 @@ case "$(uname -s)" in
     # Create a user-level .desktop override only when the system entry uses a
     # non-standard icon path. Most kitty packages already ship Icon=kitty, so
     # in that case the hicolor entry above is sufficient and no override is needed.
+    DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
     DESKTOP_SRC=""
     IFS=: read -ra _xdg_dirs < <(printf '%s' "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}")
     for _dir in "${_xdg_dirs[@]}"; do
@@ -155,8 +156,6 @@ case "$(uname -s)" in
         break
       fi
     done
-
-    DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
     if [[ -n "$DESKTOP_SRC" ]]; then
       if ! grep -q '^[[:space:]]*Icon[[:space:]]*=[[:space:]]*kitty$' "$DESKTOP_SRC"; then
         # Only write/overwrite if we own the file (signature comment) or it doesn't exist yet.
