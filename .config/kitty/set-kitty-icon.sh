@@ -112,11 +112,21 @@ case "$(uname -s)" in
     done
 
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
-    if [[ -n "$DESKTOP_SRC" ]] && ! grep -q '^Icon=kitty$' "$DESKTOP_SRC"; then
-      if [[ ! -f "$DESKTOP_DEST" || "$DESKTOP_SRC" -nt "$DESKTOP_DEST" ]]; then
-        mkdir -p "$(dirname "$DESKTOP_DEST")"
-        cp "$DESKTOP_SRC" "$DESKTOP_DEST"
-        sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+    if [[ -n "$DESKTOP_SRC" ]]; then
+      if ! grep -q '^Icon=kitty$' "$DESKTOP_SRC"; then
+        # Only write/overwrite if we own the file (signature comment) or it doesn't exist yet.
+        # This preserves user-modified overrides while keeping our managed copy up to date.
+        if [[ ! -f "$DESKTOP_DEST" ]] || grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
+          mkdir -p "$(dirname "$DESKTOP_DEST")"
+          cp "$DESKTOP_SRC" "$DESKTOP_DEST"
+          sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+          echo "# Modified by set-kitty-icon.sh" >> "$DESKTOP_DEST"
+        fi
+      else
+        # System icon is now standard — remove our override if we created it.
+        if [[ -f "$DESKTOP_DEST" ]] && grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
+          rm "$DESKTOP_DEST"
+        fi
       fi
     fi
 
