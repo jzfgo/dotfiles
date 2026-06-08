@@ -49,11 +49,13 @@ case "$(uname -s)" in
     /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
       "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
 
-    # kitty ships ad-hoc signed (no TeamIdentifier, no entitlements). Re-signing
-    # ad-hoc after modifying sealed resources restores bundle validity without
-    # changing the security posture.
-    codesign --force --deep --sign - "$KITTY_APP"
+    # Re-sign ad-hoc after modifying sealed resources; preserve existing entitlements
+    # (JIT, library-validation exceptions, etc.) that kitty may carry.
+    codesign --force --deep --sign - --preserve-metadata=entitlements,requirements,flags "$KITTY_APP"
     touch "$KITTY_APP"
+
+    # Flush Launch Services DB so Dock/Finder pick up the new icon immediately.
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$KITTY_APP"
 
     killall Dock || true
 
