@@ -79,7 +79,7 @@ case "$(uname -s)" in
 
     # Re-sign ad-hoc after modifying sealed resources; preserve existing entitlements
     # (JIT, library-validation exceptions, etc.) that kitty may carry.
-    codesign --force --deep --sign - --preserve-metadata=entitlements,requirements,flags "$KITTY_APP"
+    codesign --force --deep --sign - --preserve-metadata=entitlements,flags "$KITTY_APP"
     touch "$KITTY_APP"
 
     # Flush Launch Services DB so Dock/Finder pick up the new icon immediately.
@@ -137,6 +137,7 @@ case "$(uname -s)" in
         if [[ ! -f "$DESKTOP_DEST" ]] || grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
           mkdir -p "$(dirname "$DESKTOP_DEST")"
           cp "$DESKTOP_SRC" "$DESKTOP_DEST"
+          chmod +w "$DESKTOP_DEST"
           if grep -q '^Icon=' "$DESKTOP_DEST"; then
             sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
           else
