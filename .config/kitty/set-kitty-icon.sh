@@ -19,11 +19,6 @@ _install_launchagent() {
 
 case "$(uname -s)" in
   Darwin)
-    # --install: register the LaunchAgent that re-runs this script on kitty updates
-    if [[ "${1:-}" == "--install" ]]; then
-      _install_launchagent
-    fi
-
     KITTY_APP="/Applications/kitty.app"
     ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
 
@@ -31,23 +26,28 @@ case "$(uname -s)" in
     # to the bundle would re-trigger WatchPaths, creating an infinite launchd loop.
     if cmp -s "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
       echo "kitty icon already applied"
+      # --install re-registers the LaunchAgent even when the icon is current
+      if [[ "${1:-}" == "--install" ]]; then
+        _install_launchagent
+      fi
       exit 0
     fi
 
-    # In interactive sessions fail fast — the retry loop is only for launchd
-    # WatchPaths firing mid-upgrade when the bundle is transiently absent.
-    if [[ -t 1 ]] && [[ ! -d "$KITTY_APP" ]]; then
-      echo "error: kitty not found at $KITTY_APP" >&2
-      exit 1
+    # --watch is passed by the plist so the retry loop can handle the bundle being
+    # temporarily absent during brew upgrade. Without it, fail fast immediately.
+    if [[ "${1:-}" != "--watch" ]]; then
+      if [[ ! -d "$KITTY_APP" ]]; then
+        echo "error: kitty not found at $KITTY_APP" >&2
+        exit 1
+      fi
+      if [[ ! -w "$KITTY_APP" ]]; then
+        echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
+        exit 1
+      fi
     fi
 
-    if [[ -d "$KITTY_APP" ]] && [[ ! -w "$KITTY_APP" ]]; then
-      echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
-      exit 1
-    fi
-
-    # WatchPaths fires while Homebrew is mid-install and the bundle is temporarily
-    # absent — no fast-fail here; let the retry loop handle the missing directory.
+    # --watch: WatchPaths fires while Homebrew is mid-install and the bundle is
+    # temporarily absent — let the retry loop handle the missing directory.
     for i in {1..10}; do
       if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
@@ -79,6 +79,13 @@ case "$(uname -s)" in
     killall Dock || true
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
+
+    # Register the LaunchAgent AFTER the icon is fully applied. Registering first
+    # with RunAtLoad=true would trigger a concurrent background run that races
+    # with this foreground process over codesign and cp.
+    if [[ "${1:-}" == "--install" ]]; then
+      _install_launchagent
+    fi
     ;;
 
   Linux)
