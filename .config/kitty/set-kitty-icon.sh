@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ $EUID -eq 0 ]]; then
+  echo "error: this script should not be run as root or with sudo" >&2
+  exit 1
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ICON_DARK_ICNS="$SCRIPT_DIR/icon/kitty-dark.icns"
 ICON_DARK_PNG="$SCRIPT_DIR/icon/kitty-dark.png"
@@ -64,7 +69,7 @@ case "$(uname -s)" in
         echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
         exit 1
       fi
-      if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
+      if [[ -d "$KITTY_APP/Contents/Resources" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
       if [[ $i -eq 10 ]]; then
@@ -160,6 +165,10 @@ case "$(uname -s)" in
           rm "$DESKTOP_DEST"
         fi
       fi
+    fi
+
+    if command -v update-desktop-database &>/dev/null; then
+      update-desktop-database "$HOME/.local/share/applications" || true
     fi
 
     echo "kitty icon applied"
