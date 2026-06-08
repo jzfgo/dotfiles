@@ -74,7 +74,7 @@ case "$(uname -s)" in
     touch "$KITTY_APP"
 
     # Flush Launch Services DB so Dock/Finder pick up the new icon immediately.
-    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$KITTY_APP"
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$KITTY_APP" || true
 
     killall Dock || true
 
@@ -91,8 +91,9 @@ case "$(uname -s)" in
       gtk-update-icon-cache --force --quiet "$HICOLOR_DIR"
     fi
 
-    # Create or patch a user-level .desktop override so the window manager
-    # picks up the icon even if the system .desktop entry has an absolute path.
+    # Create a user-level .desktop override only when the system entry uses a
+    # non-standard icon path. Most kitty packages already ship Icon=kitty, so
+    # in that case the hicolor entry above is sufficient and no override is needed.
     DESKTOP_SRC=""
     IFS=: read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
     for _dir in "${_xdg_dirs[@]}"; do
@@ -104,13 +105,12 @@ case "$(uname -s)" in
     done
 
     DESKTOP_DEST="$HOME/.local/share/applications/kitty.desktop"
-    if [[ -n "$DESKTOP_SRC" ]] && [[ ! -f "$DESKTOP_DEST" || "$DESKTOP_SRC" -nt "$DESKTOP_DEST" ]]; then
-      mkdir -p "$(dirname "$DESKTOP_DEST")"
-      cp "$DESKTOP_SRC" "$DESKTOP_DEST"
-    fi
-
-    if [[ -f "$DESKTOP_DEST" ]]; then
-      sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+    if [[ -n "$DESKTOP_SRC" ]] && ! grep -q '^Icon=kitty$' "$DESKTOP_SRC"; then
+      if [[ ! -f "$DESKTOP_DEST" || "$DESKTOP_SRC" -nt "$DESKTOP_DEST" ]]; then
+        mkdir -p "$(dirname "$DESKTOP_DEST")"
+        cp "$DESKTOP_SRC" "$DESKTOP_DEST"
+        sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
+      fi
     fi
 
     echo "kitty icon applied"
