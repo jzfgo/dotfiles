@@ -19,6 +19,7 @@ _install_launchagent() {
     exit 1
   fi
   mkdir -p "$HOME/Library/LaunchAgents"
+  chmod 644 "$PLIST_SRC"
   ln -sf "$PLIST_SRC" "$PLIST_DEST"
   # bootstrap is idempotent on already-loaded services; unload first if needed
   launchctl bootout "gui/$(id -u)/$PLIST_LABEL" 2>/dev/null || true
@@ -94,7 +95,8 @@ case "$(uname -s)" in
     # can write the new signature without encountering a busy-text error.
     EXE_PATH="$KITTY_APP/Contents/MacOS/kitty"
     if [[ -f "$EXE_PATH" ]]; then
-      cp -p "$EXE_PATH" "${EXE_PATH}.tmp"
+      cp "$EXE_PATH" "${EXE_PATH}.tmp"
+      chmod 755 "${EXE_PATH}.tmp"
       mv -f "${EXE_PATH}.tmp" "$EXE_PATH"
     fi
 
