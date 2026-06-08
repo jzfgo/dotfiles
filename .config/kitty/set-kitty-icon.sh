@@ -25,10 +25,17 @@ case "$(uname -s)" in
     fi
 
     KITTY_APP="/Applications/kitty.app"
+    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
+
+    # Exit early if our icon is already in place — every write this script makes
+    # to the bundle would re-trigger WatchPaths, creating an infinite launchd loop.
+    if cmp -s "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
+      echo "kitty icon already applied"
+      exit 0
+    fi
 
     # WatchPaths fires while Homebrew is mid-install and the bundle is temporarily
     # absent — no fast-fail here; let the retry loop handle the missing directory.
-    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
     for i in {1..10}; do
       if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
