@@ -19,8 +19,8 @@ _install_launchagent() {
     exit 1
   fi
   mkdir -p "$HOME/Library/LaunchAgents"
-  chmod 644 "$PLIST_SRC"
-  ln -sf "$PLIST_SRC" "$PLIST_DEST"
+  cp -f "$PLIST_SRC" "$PLIST_DEST"
+  chmod 644 "$PLIST_DEST"
   # bootstrap is idempotent on already-loaded services; unload first if needed
   launchctl bootout "gui/$(id -u)/$PLIST_LABEL" 2>/dev/null || true
   launchctl bootstrap "gui/$(id -u)" "$PLIST_DEST"
@@ -143,13 +143,14 @@ case "$(uname -s)" in
     # non-standard icon path. Most kitty packages already ship Icon=kitty, so
     # in that case the hicolor entry above is sufficient and no override is needed.
     DESKTOP_SRC=""
-    IFS=: read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-    # IFS=: excludes newline, so <<< appends \n to the last element — strip it.
-    _xdg_dirs[${#_xdg_dirs[@]}-1]="${_xdg_dirs[${#_xdg_dirs[@]}-1]%$'\n'}"
+    IFS=: read -ra _xdg_dirs < <(printf '%s' "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}")
     for _dir in "${_xdg_dirs[@]}"; do
       [[ -d "$_dir" ]] || continue
       candidate="$_dir/applications/kitty.desktop"
       if [[ -f "$candidate" ]]; then
+        if [[ "$candidate" -ef "$DESKTOP_DEST" ]]; then
+          continue
+        fi
         DESKTOP_SRC="$candidate"
         break
       fi
