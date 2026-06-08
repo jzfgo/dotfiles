@@ -58,6 +58,10 @@ case "$(uname -s)" in
     # --watch: WatchPaths fires while Homebrew is mid-install and the bundle is
     # temporarily absent — let the retry loop handle the missing directory.
     for i in {1..10}; do
+      if [[ -d "$KITTY_APP" ]] && [[ ! -w "$KITTY_APP" ]]; then
+        echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
+        exit 1
+      fi
       if [[ -f "$ICNS_DEST" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
         break
       fi
@@ -76,6 +80,9 @@ case "$(uname -s)" in
     # Remove it so the system reads kitty.icns, which we control.
     /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
       "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
+
+    # Clear xattrs (quarantine, FinderInfo, etc.) that codesign rejects as "detritus".
+    xattr -cr "$KITTY_APP" || true
 
     # Re-sign ad-hoc after modifying sealed resources; preserve existing entitlements
     # (JIT, library-validation exceptions, etc.) that kitty may carry.
