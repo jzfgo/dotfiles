@@ -9,6 +9,10 @@ PLIST_LABEL="com.user.kitty-icon"
 PLIST_DEST="$HOME/Library/LaunchAgents/$PLIST_LABEL.plist"
 
 _install_launchagent() {
+  if [[ ! -f "$PLIST_SRC" ]]; then
+    echo "error: plist source file not found at $PLIST_SRC" >&2
+    exit 1
+  fi
   mkdir -p "$HOME/Library/LaunchAgents"
   ln -sf "$PLIST_SRC" "$PLIST_DEST"
   # bootstrap is idempotent on already-loaded services; unload first if needed
@@ -21,6 +25,11 @@ case "$(uname -s)" in
   Darwin)
     KITTY_APP="/Applications/kitty.app"
     ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
+
+    if [[ ! -f "$ICON_DARK_ICNS" ]]; then
+      echo "error: source icon not found at $ICON_DARK_ICNS" >&2
+      exit 1
+    fi
 
     # Exit early if our icon is already in place — every write this script makes
     # to the bundle would re-trigger WatchPaths, creating an infinite launchd loop.
@@ -93,13 +102,18 @@ case "$(uname -s)" in
     ;;
 
   Linux)
+    if [[ ! -f "$ICON_DARK_PNG" ]]; then
+      echo "error: source icon not found at $ICON_DARK_PNG" >&2
+      exit 1
+    fi
+
     HICOLOR_DIR="$HOME/.local/share/icons/hicolor"
     ICON_DEST="$HICOLOR_DIR/256x256/apps"
     mkdir -p "$ICON_DEST"
     cp "$ICON_DARK_PNG" "$ICON_DEST/kitty.png"
 
     if command -v gtk-update-icon-cache &>/dev/null; then
-      gtk-update-icon-cache --force --quiet "$HICOLOR_DIR"
+      gtk-update-icon-cache --force --quiet "$HICOLOR_DIR" || true
     fi
 
     # Create a user-level .desktop override only when the system entry uses a
@@ -126,7 +140,7 @@ case "$(uname -s)" in
           if grep -q '^Icon=' "$DESKTOP_DEST"; then
             sed -i 's|^Icon=.*|Icon=kitty|' "$DESKTOP_DEST"
           else
-            echo "Icon=kitty" >> "$DESKTOP_DEST"
+            sed -i '/^\[Desktop Entry\]$/a Icon=kitty' "$DESKTOP_DEST"
           fi
           echo "# Modified by set-kitty-icon.sh" >> "$DESKTOP_DEST"
         fi
