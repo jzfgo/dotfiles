@@ -52,13 +52,11 @@ Config lives in `.config/nvim/` and is built on **NvChad** (loaded as a Lazy plu
 
 The custom dark icon is applied and kept in place by two complementary mechanisms:
 
-1. **`set-kitty-icon.sh`** — the script that copies `.config/kitty/icon/kitty-dark.icns` over the app bundle's icon, removes `CFBundleIconName` from `Info.plist`, clears xattrs, and re-signs the bundle ad-hoc (`codesign --sign -`).
+1. **`set-kitty-icon.sh`** — sets the icon via `NSWorkspace.setIcon` (the same API Finder uses for "Get Info → paste icon"). The icon is stored as a Finder custom-icon extended attribute on the `.app` directory; the bundle's signed content is never modified, so no codesign step is needed. On first run, macOS will prompt for **App Management** permission — click Allow.
 
 2. **LaunchAgent** (`com.user.kitty-icon.plist`) — watches `/Applications` (not `kitty.app` directly, because the inode is destroyed on brew upgrade) and fires the script with `--watch`. Install/reload it by running `set-kitty-icon.sh --install`.
 
-3. **brew hook** in `aliases.zsh` — runs the script after `brew upgrade` / `brew upgrade kitty`. This is the *primary* re-apply mechanism because the LaunchAgent's bash process lacks the macOS **App Management TCC permission** needed to write into `/Applications` bundles; the terminal session has it.
-
-Key constraint: **never route the icon write through launchd directly** — it will silently fail with a TCC block. The brew hook in the terminal context is the reliable path.
+3. **brew hook** in `aliases.zsh` — runs the script after `brew upgrade` / `brew install` / `brew reinstall kitty`. This is the *primary* re-apply mechanism.
 
 Log: `~/Library/Logs/kitty-icon.log` — each invocation is prefixed with a timestamp header (`--- launchd …` or `--- brew hook …`).
 

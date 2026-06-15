@@ -22,7 +22,6 @@ _install_launchagent() {
   rm -f "$PLIST_DEST"
   cp -f "$PLIST_SRC" "$PLIST_DEST"
   chmod 644 "$PLIST_DEST"
-  # bootstrap is idempotent on already-loaded services; unload first if needed
   launchctl bootout "gui/$(id -u)/$PLIST_LABEL" 2>/dev/null || true
   launchctl bootstrap "gui/$(id -u)" "$PLIST_DEST"
   echo "LaunchAgent installed — icon will be re-applied automatically after kitty updates"
@@ -31,100 +30,54 @@ _install_launchagent() {
 case "$(uname -s)" in
   Darwin)
     KITTY_APP="/Applications/kitty.app"
-    ICNS_DEST="$KITTY_APP/Contents/Resources/kitty.icns"
 
     if [[ ! -f "$ICON_DARK_ICNS" ]]; then
       echo "error: source icon not found at $ICON_DARK_ICNS" >&2
       exit 1
     fi
 
-    # Exit early if our icon is already in place AND CFBundleIconName is gone.
-    # Checking both prevents a partial-run scenario (cp done, plist not yet patched)
-    # from being mistaken for a fully applied state.
-    if cmp -s "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null && \
-       ! /usr/libexec/PlistBuddy -c "Print :CFBundleIconName" "$KITTY_APP/Contents/Info.plist" &>/dev/null; then
-      echo "kitty icon already applied"
-      # --install re-registers the LaunchAgent even when the icon is current
-      if [[ "${1:-}" == "--install" ]]; then
-        _install_launchagent
-      fi
-      exit 0
-    fi
-
-    # --watch is passed by the plist so the retry loop can handle the bundle being
-    # temporarily absent during brew upgrade. Without it, fail fast immediately.
-    if [[ "${1:-}" != "--watch" ]]; then
-      if [[ ! -d "$KITTY_APP" ]]; then
-        echo "error: kitty not found at $KITTY_APP" >&2
-        exit 1
-      fi
-      if [[ ! -w "$KITTY_APP" ]]; then
-        echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
-        exit 1
-      fi
-    fi
-
-    # --watch: WatchPaths fires while Homebrew is mid-install and the bundle is
-    # temporarily absent — let the retry loop handle the missing directory.
-    for i in {1..5}; do
-      if [[ -d "$KITTY_APP/Contents/Resources" ]] && cp "$ICON_DARK_ICNS" "$ICNS_DEST" 2>/dev/null; then
-        break
-      fi
-      if [[ $i -eq 5 ]]; then
-        if [[ ! -d "$KITTY_APP" ]]; then
+    if [[ "${1:-}" == "--watch" ]]; then
+      # WatchPaths fires while brew is mid-install and the bundle is temporarily
+      # absent; retry until it appears or we give up.
+      for i in {1..10}; do
+        [[ -d "$KITTY_APP" ]] && break
+        if [[ $i -eq 10 ]]; then
           echo "error: kitty not found at $KITTY_APP" >&2
-        elif [[ ! -w "$KITTY_APP" ]]; then
-          echo "error: permission denied — $KITTY_APP is not writable by $(whoami)" >&2
-        else
-          echo "error: could not write to $ICNS_DEST after retries" >&2
+          exit 1
         fi
-        # In --watch mode (LaunchAgent context) the App Management TCC permission is
-        # absent. Notify the user so they can re-apply manually from a terminal.
-        if [[ "${1:-}" == "--watch" ]]; then
-          osascript -e 'display notification "Run set-kitty-icon.sh to restore your custom icon" with title "kitty icon not applied"' 2>/dev/null || true
-        fi
-        exit 1
-      fi
-      sleep 1
-    done
-
-    # macOS prefers CFBundleIconName (asset catalog) over CFBundleIconFile (.icns).
-    # Remove it so the system reads kitty.icns, which we control.
-    /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" \
-      "$KITTY_APP/Contents/Info.plist" 2>/dev/null || true
-
-    # Clear xattrs (quarantine, FinderInfo, etc.) that codesign rejects as "detritus".
-    xattr -cr "$KITTY_APP" || true
-
-    # If kitty is running, its executable inode is write-protected by the kernel
-    # (ETXTBSY). Unlink the active inode by swapping in a fresh copy so codesign
-    # can write the new signature without encountering a busy-text error.
-    EXE_PATH="$KITTY_APP/Contents/MacOS/kitty"
-    if [[ -f "$EXE_PATH" ]]; then
-      cp "$EXE_PATH" "${EXE_PATH}.tmp"
-      chmod 755 "${EXE_PATH}.tmp"
-      mv -f "${EXE_PATH}.tmp" "$EXE_PATH"
+        sleep 2
+      done
+    elif [[ ! -d "$KITTY_APP" ]]; then
+      echo "error: kitty not found at $KITTY_APP" >&2
+      exit 1
     fi
 
-    # Re-sign ad-hoc after modifying sealed resources; preserve existing entitlements
-    # (JIT, library-validation exceptions, etc.) that kitty may carry.
-    codesign --force --deep --sign - --preserve-metadata=entitlements,flags "$KITTY_APP"
+    # Apply the custom icon via the same NSWorkspace API that Finder uses when
+    # you paste an icon in Get Info. The icon is stored as a Finder custom-icon
+    # extended attribute on the .app directory — the bundle's signed content is
+    # never touched, so no codesign step is needed.
+    # macOS will prompt for App Management permission on the first run if needed.
+    if ! osascript \
+        -e 'use framework "AppKit"' \
+        -e "set img to current application's NSImage's alloc()'s initWithContentsOfFile:\"$ICON_DARK_ICNS\"" \
+        -e "current application's NSWorkspace's sharedWorkspace()'s setIcon:img forFile:\"$KITTY_APP\" options:0"; then
+      echo "error: could not set icon — if prompted, grant App Management permission in System Settings → Privacy & Security, then re-run this script" >&2
+      exit 1
+    fi
+
+    # Notify Launch Services and the Dock so the new icon appears immediately.
     touch "$KITTY_APP"
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+      -f "$KITTY_APP" || true
 
-    # Flush Launch Services DB so Dock/Finder pick up the new icon immediately.
-    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$KITTY_APP" || true
-
-    # Only restart the Dock interactively — in --watch mode the user is working
-    # and a background Dock restart would cause disruptive screen flickering.
+    # Skip Dock restart in --watch mode to avoid disruptive screen flickering
+    # while the user is working.
     if [[ "${1:-}" != "--watch" ]]; then
       killall Dock || true
     fi
 
     echo "kitty icon applied — you may need to relaunch kitty for the change to appear"
 
-    # Register the LaunchAgent AFTER the icon is fully applied. Registering first
-    # with RunAtLoad=true would trigger a concurrent background run that races
-    # with this foreground process over codesign and cp.
     if [[ "${1:-}" == "--install" ]]; then
       _install_launchagent
     fi
@@ -164,8 +117,6 @@ case "$(uname -s)" in
     done
     if [[ -n "$DESKTOP_SRC" ]]; then
       if ! grep -q '^[[:space:]]*Icon[[:space:]]*=[[:space:]]*kitty$' "$DESKTOP_SRC"; then
-        # Only write/overwrite if we own the file (signature comment) or it doesn't exist yet.
-        # This preserves user-modified overrides while keeping our managed copy up to date.
         if [[ ! -f "$DESKTOP_DEST" ]] || grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
           mkdir -p "$(dirname "$DESKTOP_DEST")"
           cp "$DESKTOP_SRC" "$DESKTOP_DEST"
@@ -178,7 +129,6 @@ case "$(uname -s)" in
           echo "# Modified by set-kitty-icon.sh" >> "$DESKTOP_DEST"
         fi
       else
-        # System icon is now standard — remove our override if we created it.
         if [[ -f "$DESKTOP_DEST" ]] && grep -q '# Modified by set-kitty-icon.sh' "$DESKTOP_DEST"; then
           rm "$DESKTOP_DEST"
         fi

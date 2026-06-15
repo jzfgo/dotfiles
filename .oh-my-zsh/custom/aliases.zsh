@@ -10,9 +10,8 @@ alias lg="lazygit"
 
 alias kkn='clear && command -v cmatrix >/dev/null 2>&1 && cmatrix -Ba -u 2 -C green || echo "The Matrix has you... (install cmatrix)"'
 
-# Re-apply custom kitty icon after brew upgrades that replace kitty.app.
-# The LaunchAgent watcher can't do this itself because background bash lacks the
-# macOS App Management TCC permission required to write to /Applications bundles.
+# Re-apply the custom kitty icon after brew operations that replace kitty.app.
+# NSWorkspace.setIcon requires an active user session, which the brew hook has.
 brew() {
   command brew "$@"
   local ec=$?
