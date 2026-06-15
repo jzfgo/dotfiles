@@ -78,6 +78,11 @@ case "$(uname -s)" in
         else
           echo "error: could not write to $ICNS_DEST after retries" >&2
         fi
+        # In --watch mode (LaunchAgent context) the App Management TCC permission is
+        # absent. Notify the user so they can re-apply manually from a terminal.
+        if [[ "${1:-}" == "--watch" ]]; then
+          osascript -e 'display notification "Run set-kitty-icon.sh to restore your custom icon" with title "kitty icon not applied"' 2>/dev/null || true
+        fi
         exit 1
       fi
       sleep 1

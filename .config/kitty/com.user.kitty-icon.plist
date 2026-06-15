@@ -10,7 +10,7 @@
         <string>/bin/bash</string>
         <string>-c</string>
         <!-- Redirect logs here because launchd does not expand $HOME in path keys -->
-        <string>mkdir -p "$HOME/Library/Logs" &amp;&amp; exec /bin/bash "$HOME/.config/kitty/set-kitty-icon.sh" --watch >> "$HOME/Library/Logs/kitty-icon.log" 2>&amp;1</string>
+        <string>mkdir -p "$HOME/Library/Logs" &amp;&amp; { printf '\n--- launchd %s ---\n' "$(date '+%Y-%m-%dT%H:%M:%S')"; exec /bin/bash "$HOME/.config/kitty/set-kitty-icon.sh" --watch; } >> "$HOME/Library/Logs/kitty-icon.log" 2>&amp;1</string>
     </array>
 
     <!-- Watch /Applications (not kitty.app directly): launchd loses the WatchPaths
