@@ -17,17 +17,18 @@ autocmd("ColorScheme", {
   end,
 })
 
--- Organize imports on save for js/ts files
+-- Organize imports on save for js/ts files (sort + remove unused, never adds new ones)
 autocmd("BufWritePre", {
-  pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
+  pattern = { "*.js", "*.jsx", "*.ts", "*.tsx", "*.svelte" },
   callback = function()
     local clients = vim.lsp.get_clients { bufnr = 0, name = "ts_ls" }
-    for _, client in ipairs(clients) do
-      client:request_sync("workspace/executeCommand", {
-        command = "_typescript.organizeImports",
-        arguments = { vim.api.nvim_buf_get_name(0) },
-      }, 3000, 0)
+    if #clients == 0 then
+      return
     end
+    clients[1]:request_sync("workspace/executeCommand", {
+      command = "_typescript.organizeImports",
+      arguments = { vim.api.nvim_buf_get_name(0) },
+    }, 3000, 0)
   end,
 })
 

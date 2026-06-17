@@ -34,7 +34,7 @@ vim.lsp.config("yamlls", {
 })
 
 local servers = {
-  "html", "cssls", "ts_ls",
+  "html", "cssls", "ts_ls", "svelte",
   "marksman", "basedpyright",
   "yamlls", "lemminx", "graphql", "terraformls",
 }

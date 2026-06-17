@@ -18,6 +18,7 @@ return {
       ensure_installed = {
         -- JS/TS
         "typescript-language-server",
+        "svelte-language-server",
         "prettierd",
         -- Python
         "basedpyright",
@@ -59,6 +60,7 @@ return {
         "javascript",
         "typescript",
         "tsx",
+        "svelte",
         "python",
         "markdown",
         "markdown_inline",

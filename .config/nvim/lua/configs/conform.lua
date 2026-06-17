@@ -15,6 +15,8 @@ local options = {
     bash = { "shfmt" },
     zsh = { "shfmt" },
 
+    svelte = { "prettierd", "prettier", stop_after_first = true },
+
     javascript = { "prettierd", "prettier", stop_after_first = true },
     javascriptreact = { "prettierd", "prettier", stop_after_first = true },
     typescript = { "prettierd", "prettier", stop_after_first = true },
