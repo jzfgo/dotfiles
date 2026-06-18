@@ -1,3 +1,4 @@
 .DS_Store
 
 .config/gh/hosts.yml
+/.config/worktrunk/approvals.*
