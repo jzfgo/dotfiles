@@ -1,5 +1,22 @@
 return {
   {
+    "3rd/image.nvim",
+    build = "luarocks --local --lua-version=5.1 install magick",
+    ft = { "markdown", "norg" },
+    opts = {
+      backend = "kitty",
+      integrations = {
+        markdown = { enabled = true },
+        neorg = { enabled = false },
+      },
+      max_width = 100,
+      max_height = 12,
+      max_width_window_percentage = 100,
+      max_height_window_percentage = 50,
+    },
+  },
+
+  {
     "stevearc/conform.nvim",
     event = "BufWritePre",
     opts = require "configs.conform",

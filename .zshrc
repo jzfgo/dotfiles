@@ -18,15 +18,7 @@ source "$ZSH/oh-my-zsh.sh"
 # User configuration
 [[ -f $HOME/.secrets ]] && source $HOME/.secrets
 
-# Optional command completions
-if command -v zmx >/dev/null 2>&1; then
-  eval "$(command zmx c zsh)"
-fi
-
-if command -v wt >/dev/null 2>&1; then
-  eval "$(command wt config shell init zsh)"
-fi
-
+# fpath additions must come before compinit
 if [[ -d "$HOME/.docker/completions" ]]; then
   fpath=("$HOME/.docker/completions" "$fpath[@]")
 fi
@@ -37,6 +29,15 @@ fi
 
 autoload -Uz compinit
 compinit
+
+# Optional command completions (must come after compinit so compdef is available)
+if command -v zmx >/dev/null 2>&1; then
+  eval "$(command zmx c zsh)"
+fi
+
+if command -v wt >/dev/null 2>&1; then
+  eval "$(command wt config shell init zsh)"
+fi
 
 zstyle ':completion:*' menu select
 

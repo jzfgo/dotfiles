@@ -13,3 +13,7 @@ case ":$PATH:" in
 esac
 
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
+
+# Added by Obsidian
+[[ $OSTYPE == darwin* && -d "/Applications/Obsidian.app/Contents/MacOS" ]] &&
+  export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
