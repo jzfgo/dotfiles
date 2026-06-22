@@ -13,12 +13,8 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(direnv eza gcloud zoxide zsh-nvm)
-source "$ZSH/oh-my-zsh.sh"
 
-# User configuration
-[[ -f $HOME/.secrets ]] && source $HOME/.secrets
-
-# fpath additions must come before compinit
+# fpath additions must come before oh-my-zsh (which calls compinit)
 if [[ -d "$HOME/.docker/completions" ]]; then
   fpath=("$HOME/.docker/completions" "$fpath[@]")
 fi
@@ -27,8 +23,10 @@ if [[ -d "$HOME/.zfunc" ]]; then
   fpath=("$HOME/.zfunc" "$fpath[@]")
 fi
 
-autoload -Uz compinit
-compinit
+source "$ZSH/oh-my-zsh.sh"
+
+# User configuration
+[[ -f $HOME/.secrets ]] && source $HOME/.secrets
 
 # Optional command completions (must come after compinit so compdef is available)
 if command -v zmx >/dev/null 2>&1; then
@@ -37,6 +35,10 @@ fi
 
 if command -v wt >/dev/null 2>&1; then
   eval "$(command wt config shell init zsh)"
+fi
+
+if command -v pnpm >/dev/null 2>&1; then
+  eval "$(pnpm completion zsh)"
 fi
 
 zstyle ':completion:*' menu select
