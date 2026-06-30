@@ -2,16 +2,9 @@
 # ~/.zshrc
 #
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # Core shell setup
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME=""
 plugins=(direnv eza gcloud zoxide zsh-nvm)
 
 # fpath additions must come before oh-my-zsh (which calls compinit)
@@ -44,17 +37,9 @@ fi
 zstyle ':completion:*' menu select
 
 # Prompt
-if [[ -f "$HOME/.p10k.zsh" ]]; then
-  source "$HOME/.p10k.zsh"
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi
-
-prompt_my_zmx_session() {
-  if [[ -n "$ZMX_SESSION" ]]; then
-    p10k segment -b '%k' -f '%f' -t "[$ZMX_SESSION]"
-  fi
-}
-
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS+=my_zmx_session
 
 # External tool initialization
 if [[ -f "$HOME/.config/broot/launcher/bash/br" ]]; then
