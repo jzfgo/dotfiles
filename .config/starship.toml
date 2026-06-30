@@ -52,7 +52,7 @@ truncate_to_repo = true
 read_only = " 󰌾"
 
 [git_branch]
-symbol = " "
+symbol = " "
 style = "bold green"
 format = "[on](dimmed white) [$symbol$branch]($style) "
 
@@ -61,20 +61,20 @@ style = "bold yellow"
 format = "([$all_status$ahead_behind]($style)) "
 
 [nodejs]
-symbol = " "
+symbol = "󰎙 "
 format = "[$symbol($version )]($style)"
 style = "bold green"
 
 [python]
-symbol = " "
+symbol = "󰌠 "
 format = "[$symbol($version )]($style)"
 style = "bold yellow"
 
 [direnv]
 disabled = false
-symbol = " "
+symbol = "󰌪 "
 format = "[$symbol$loaded/$allowed]($style) "
-style = "bold orange"
+style = "bold green"
 
 [gcloud]
 disabled = false
