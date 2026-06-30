@@ -1,6 +1,9 @@
 require "nvchad.options"
 
+local opt = vim.opt
 local o = vim.o
+local g = vim.g
+
 o.cursorlineopt = "both"
 
 o.scrolloff = 10
@@ -8,7 +11,7 @@ o.number = true
 o.relativenumber = true
 
 -- Enable clipboard through SSH
-vim.g.clipboard = {
+g.clipboard = {
   name = "osc52",
   copy = {
     ["+"] = require("vim.ui.clipboard.osc52").copy "+",
@@ -20,4 +23,4 @@ vim.g.clipboard = {
   },
 }
 
-vim.opt.clipboard = "unnamedplus"
+opt.clipboard = "unnamedplus"

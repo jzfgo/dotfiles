@@ -1,19 +1,55 @@
 return {
+  -- gitsigns keymaps (NvChad provides the plugin; we add on_attach for keymaps)
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = function(_, opts)
+      opts.on_attach = function(bufnr)
+        local gs = require "gitsigns"
+        local map = function(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+        end
+
+        -- hunk navigation (falls back to diff-mode ]c/[c when in diff view)
+        map("n", "]c", function()
+          if vim.wo.diff then
+            vim.cmd.normal { "]c", bang = true }
+          else
+            gs.nav_hunk "next"
+          end
+        end, "Next hunk")
+        map("n", "[c", function()
+          if vim.wo.diff then
+            vim.cmd.normal { "[c", bang = true }
+          else
+            gs.nav_hunk "prev"
+          end
+        end, "Prev hunk")
+
+        -- hunk actions
+        map("n", "<leader>gs", gs.stage_hunk, "Stage hunk")
+        map("n", "<leader>gr", gs.reset_hunk, "Reset hunk")
+        map("v", "<leader>gs", function()
+          gs.stage_hunk { vim.fn.line ".", vim.fn.line "v" }
+        end, "Stage hunk (visual)")
+        map("v", "<leader>gr", function()
+          gs.reset_hunk { vim.fn.line ".", vim.fn.line "v" }
+        end, "Reset hunk (visual)")
+        map("n", "<leader>gu", gs.undo_stage_hunk, "Undo stage hunk")
+        map("n", "<leader>gp", gs.preview_hunk, "Preview hunk")
+
+        -- blame
+        map("n", "<leader>gb", function()
+          gs.blame_line { full = true }
+        end, "Blame line (full)")
+      end
+    end,
+  },
+
   {
     "3rd/image.nvim",
     build = "luarocks --local --lua-version=5.1 install magick",
     ft = { "markdown", "norg" },
-    opts = {
-      backend = "kitty",
-      integrations = {
-        markdown = { enabled = true },
-        neorg = { enabled = false },
-      },
-      max_width = 100,
-      max_height = 12,
-      max_width_window_percentage = 100,
-      max_height_window_percentage = 50,
-    },
+    opts = require "configs.image",
   },
 
   {
@@ -31,32 +67,7 @@ return {
 
   {
     "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        -- JS/TS
-        "typescript-language-server",
-        "svelte-language-server",
-        "prettierd",
-        -- Python
-        "basedpyright",
-        "ruff",
-        -- Markdown
-        "marksman",
-        -- Web
-        "html-lsp",
-        "css-lsp",
-        -- Lua
-        "lua-language-server",
-        "stylua",
-        -- YAML / XML / GraphQL / Terraform
-        "yaml-language-server",
-        "lemminx",
-        "graphql-language-service-cli",
-        "terraform-ls",
-        -- Shell
-        "shfmt",
-      },
-    },
+    opts = require "configs.mason",
   },
 
   -- sync terminal background color
@@ -67,72 +78,14 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "vim",
-        "lua",
-        "vimdoc",
-        "html",
-        "css",
-        "javascript",
-        "typescript",
-        "tsx",
-        "svelte",
-        "python",
-        "markdown",
-        "markdown_inline",
-        "yaml",
-        "dockerfile",
-        "graphql",
-        "bash",
-        "terraform",
-        "proto",
-      },
-    },
+    event = { "BufReadPre", "BufNewFile" },
+    opts = require "configs.nvim-treesitter",
   },
 
   {
     "davidmh/mdx.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     lazy = false,
-  },
-
-  {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
-    config = function()
-      require("copilot").setup {
-        suggestion = { enabled = false },
-        panel = { enabled = false },
-      }
-    end,
-  },
-
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    dependencies = {
-      { "nvim-lua/plenary.nvim", branch = "master" },
-    },
-    build = "make tiktoken",
-    cmd = { "CopilotChat", "CopilotChatOpen", "CopilotChatToggle" },
-    keys = {
-      { "<leader>cc", "<cmd>CopilotChatToggle<cr>", desc = "Toggle CopilotChat" },
-      { "<leader>ce", "<cmd>CopilotChatExplain<cr>", mode = { "n", "v" }, desc = "Explain" },
-      { "<leader>cf", "<cmd>CopilotChatFix<cr>", mode = { "n", "v" }, desc = "Fix" },
-      { "<leader>ct", "<cmd>CopilotChatTests<cr>", mode = { "n", "v" }, desc = "Generate tests" },
-      { "<leader>cr", "<cmd>CopilotChatReview<cr>", mode = { "n", "v" }, desc = "Review" },
-    },
-    opts = {
-      model = "gpt-4.1",
-      temperature = 0.1,
-      trusted_tools = nil,
-      window = {
-        layout = "vertical",
-        width = 0.5,
-      },
-      auto_insert_mode = true,
-    },
   },
 
   -- surround: ys/cs/ds to add/change/delete surrounding chars
@@ -167,20 +120,7 @@ return {
 
   {
     "saghen/blink.cmp",
-    dependencies = { "fang2hou/blink-copilot" },
-    opts = {
-      sources = {
-        default = { "lsp", "path", "snippets", "buffer", "copilot" },
-        providers = {
-          copilot = {
-            name = "copilot",
-            module = "blink-copilot",
-            score_offset = 100,
-            async = true,
-          },
-        },
-      },
-    },
+    opts = require "configs.blink",
   },
 
   {
@@ -220,34 +160,14 @@ return {
   {
     "mfussenegger/nvim-dap",
     keys = {
-      {
-        "<leader>db",
-        function()
-          require("dap").toggle_breakpoint()
-        end,
-        desc = "Toggle breakpoint",
-      },
-      {
-        "<leader>dc",
-        function()
-          require("dap").continue()
-        end,
-        desc = "DAP continue",
-      },
-      {
-        "<leader>di",
-        function()
-          require("dap").step_into()
-        end,
-        desc = "Step into",
-      },
-      {
-        "<leader>do",
-        function()
-          require("dap").step_over()
-        end,
-        desc = "Step over",
-      },
+      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
+      { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input "Condition: ") end, desc = "Conditional breakpoint" },
+      { "<leader>dc", function() require("dap").continue() end, desc = "DAP continue / start" },
+      { "<leader>di", function() require("dap").step_into() end, desc = "Step into" },
+      { "<leader>do", function() require("dap").step_over() end, desc = "Step over" },
+      { "<leader>dO", function() require("dap").step_out() end, desc = "Step out" },
+      { "<leader>dT", function() require("dap").terminate() end, desc = "Terminate session" },
+      { "<leader>dR", function() require("dap").run_last() end, desc = "Run last config" },
     },
   },
 
@@ -256,13 +176,8 @@ return {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
     keys = {
-      {
-        "<leader>du",
-        function()
-          require("dapui").toggle()
-        end,
-        desc = "Toggle DAP UI",
-      },
+      { "<leader>du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+      { "<leader>de", function() require("dapui").eval() end, desc = "Eval expression", mode = { "n", "v" } },
     },
     config = function()
       local dap, dapui = require "dap", require "dapui"
@@ -279,13 +194,44 @@ return {
     end,
   },
 
-  -- Python DAP adapter (uses debugpy)
+  -- Python DAP adapter (uses Mason-managed debugpy)
   {
     "mfussenegger/nvim-dap-python",
     ft = "python",
     dependencies = { "mfussenegger/nvim-dap" },
     config = function()
-      require("dap-python").setup "python3"
+      require("dap-python").setup(
+        vim.fn.stdpath "data" .. "/mason/packages/debugpy/venv/bin/python"
+      )
+    end,
+  },
+
+  -- test runner: vitest (frontend) + pytest (backend) with inline results
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "nvim-neotest/nvim-nio",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "marilari88/neotest-vitest",
+      "nvim-neotest/neotest-python",
+    },
+    keys = {
+      { "<leader>tt", function() require("neotest").run.run() end, desc = "Run nearest test" },
+      { "<leader>tf", function() require("neotest").run.run(vim.fn.expand "%") end, desc = "Run file tests" },
+      { "<leader>ts", function() require("neotest").summary.toggle() end, desc = "Toggle test summary" },
+      { "<leader>to", function() require("neotest").output.open { enter = true } end, desc = "Test output" },
+      { "<leader>tO", function() require("neotest").output_panel.toggle() end, desc = "Toggle output panel" },
+      { "<leader>tS", function() require("neotest").run.stop() end, desc = "Stop test run" },
+      { "<leader>td", function() require("neotest").run.run { strategy = "dap" } end, desc = "Debug nearest test" },
+    },
+    config = function()
+      require("neotest").setup {
+        adapters = {
+          require "neotest-vitest",
+          require("neotest-python") { dap = { justMyCode = false } },
+        },
+      }
     end,
   },
 
@@ -319,5 +265,13 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     ft = { "markdown", "mdx" },
     opts = {},
+  },
+
+  {
+    "nvim-telescope/telescope-live-grep-args.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    config = function()
+      require "configs.telescope"
+    end,
   },
 }
