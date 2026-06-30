@@ -29,7 +29,8 @@ style = "bold white"
 
 [os.symbols]
 Macos = "󰀵 "
-Linux = " "
+Linux = " "
+CachyOS = " "
 
 [username]
 style_user = "bold yellow"
