@@ -27,3 +27,6 @@ brew() {
   esac
   return $ec
 }
+
+# Machine-local aliases (not tracked; may contain host- or OS-specific setup)
+[[ -f ~/.zsh_aliases.local ]] && source ~/.zsh_aliases.local
