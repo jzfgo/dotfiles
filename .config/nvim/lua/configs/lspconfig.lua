@@ -6,20 +6,11 @@ vim.lsp.config("marksman", {
   root_markers = { ".marksman.toml", ".git" },
 })
 
-vim.lsp.config("basedpyright", {
+vim.lsp.config("ty", {
   settings = {
-    basedpyright = {
-      disableOrganizeImports = true,
-      -- analysis = { ignore = { '*' } }, -- ruff does linting
-      analysis = {
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
-        diagnosticMode = "openFilesOnly",
-        typeCheckingMode = "basic",
-        diagnosticSeverityOverrides = {
-          reportOptionalMemberAccess = false, -- "warning"
-        },
-      },
+    ty = {
+      -- "openFilesOnly" (default) or "workspace"
+      diagnosticMode = "openFilesOnly",
     },
   },
 })
@@ -34,7 +25,7 @@ vim.lsp.config("yamlls", {
 })
 
 local servers = {
-  "basedpyright",
+  "ty",
   "cssls",
   "html",
   "lemminx",

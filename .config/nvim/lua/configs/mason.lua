@@ -5,7 +5,7 @@ local options = {
     "svelte-language-server",
     "prettierd",
     -- Python
-    "basedpyright",
+    "ty",
     "ruff",
     -- Markdown
     "marksman",
