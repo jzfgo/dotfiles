@@ -67,6 +67,9 @@ return {
 
   {
     "williamboman/mason.nvim",
+    -- extend NvChad's lazy-load triggers (Mason/MasonInstall/MasonUpdate)
+    -- with the commands it leaves out
+    cmd = { "MasonUninstall", "MasonUninstallAll", "MasonLog" },
     opts = require "configs.mason",
   },
 
