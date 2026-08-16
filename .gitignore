@@ -1,4 +1,6 @@
 .DS_Store
 
 .config/gh/hosts.yml
+/.config/hypr/local.conf
+/.config/hypr/hyprpaper-local.conf
 /.config/worktrunk/approvals.*

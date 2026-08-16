@@ -73,6 +73,6 @@ Log: `~/Library/Logs/kitty-icon.log` — each invocation is prefixed with a time
 | `autostart.conf` | Startup daemons |
 | `env.conf` | Environment variables for Wayland/XDG |
 
-Machine-specific overrides (monitor configs, local app paths) go in the untracked `~/.config/hypr/local.conf`.
+Machine-specific overrides (monitor configs, local app paths) go in the untracked `~/.config/hypr/local.conf`. Likewise, `hyprpaper.conf` sources the untracked `~/.config/hypr/hyprpaper-local.conf` for the machine's `wallpaper { }` block. Both files must exist (create empty if needed) — Hyprland/hyprpaper error on a missing `source` target.
 
 Bar config is in `.config/waybar/` (JSONC + CSS). App launcher in `.config/rofi/`.
