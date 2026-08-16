@@ -1,4 +1,10 @@
+local mason_pin = require "custom.mason-pin"
+mason_pin.refresh()
+
 local options = {
+  -- Registry snapshot >= 7 days old (supply-chain delay); see custom/mason-pin.lua
+  registries = { mason_pin.registry() },
+
   ensure_installed = {
     -- JS/TS
     "typescript-language-server",
