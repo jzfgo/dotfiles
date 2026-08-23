@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo uses **GNU Stow**. Running `stow .` from the repo root symlinks all tracked files to `$HOME`, mirroring the directory structure exactly (`stow -R .` to re-deploy after adding files). `.stowrc` configures Stow to ignore `.stowrc`, `.DS_Store`, `power-management.md`, and `CLAUDE.md` files.
 
-After a fresh clone, run `git submodule update --init --recursive`. Submodules: `powerlevel10k` (theme), `zsh-nvm` (plugin), `cheat/cheatsheets` (community cheat sheets).
+After a fresh clone, run `git submodule update --init --recursive`. Submodules: `zsh-nvm` (plugin).
 
 ## Platform split
 
