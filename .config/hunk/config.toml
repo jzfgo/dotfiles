@@ -1,0 +1,12 @@
+theme = "catppuccin-mocha"
+watch = true
+tab_width = 2
+agent_notes = true
+transparent_background = true
+mode = "auto"
+line_numbers = true
+wrap_lines = false
+hunk_headers = true
+menu_bar = true
+copy_decorations = false
+cursor_line = "row"

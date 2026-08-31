@@ -34,6 +34,7 @@
 	excludesfile = ~/.gitignore_global
 	quotepath = false
 	whitespace = -trailing-space,-indent-with-non-tab,-tab-in-indent
+	pager = hunk pager
 
 [push]
 	default = simple
