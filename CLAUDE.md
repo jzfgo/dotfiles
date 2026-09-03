@@ -19,7 +19,7 @@ The repo targets **macOS** (primary) and **Linux** (Hyprland/Wayland). Platform-
 ## Shell (zsh / Oh My Zsh)
 
 - **`.zshrc`** — loads Oh My Zsh with plugins: `direnv`, `eza`, `gcloud`, `zoxide`, `zsh-nvm`. Sources `~/.secrets` if present (not tracked).
-- **`.zprofile`** — sets `$EDITOR`, `$PNPM_HOME`; sources `~/.zprofile.local` (not tracked).
+- **`.zprofile`** — sets `$EDITOR`, `$PNPM_HOME`; sources `~/.zprofile.local` (not tracked) — app-bundle PATH entries (`/Applications/...`) go there, never in tracked files. Homebrew's `shellenv` is the deliberate exception: the rest of the file needs `$HOMEBREW_PREFIX`, and its `-x` guard makes it inert elsewhere.
 - **`.oh-my-zsh/custom/`** — the place for all custom shell additions:
   - `aliases.zsh` — aliases + a `brew()` wrapper that re-applies the kitty custom icon after upgrades. Also sources `~/.zsh_aliases.local` (machine-local, not tracked) — host- or OS-specific aliases go there, never in tracked files
   - `eza.zsh` — eza display configuration (replaces `ls`)
