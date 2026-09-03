@@ -16,8 +16,5 @@ case ":$PATH:" in
 *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 
+# Machine-local setup (not tracked; platform- or host-specific PATH entries)
 [[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
-
-# Added by Obsidian
-[[ $OSTYPE == darwin* && -d "/Applications/Obsidian.app/Contents/MacOS" ]] &&
-  export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
