@@ -38,6 +38,17 @@ M.ui = {
   statusline = {
     theme = "minimal",
     separator_style = "round",
+
+    -- The minimal theme calls utils.generate("default", ...), so this is the
+    -- `default` order with `words` spliced in before cwd, not minimal's own.
+    order = { "mode", "file", "git", "%=", "lsp_msg", "%=", "diagnostics", "lsp", "words", "cwd", "cursor" },
+
+    modules = {
+      -- required lazily: chadrc is read before the runtime path is fully set up
+      words = function()
+        return require("custom.wordcount").statusline()
+      end,
+    },
   },
 
   tabufline = {
