@@ -63,6 +63,10 @@ autocmd("FileType", {
   pattern = "markdown",
   callback = function()
     require("nvim-surround").buffer_setup {
+      aliases = {
+        -- disable default b -> ")" alias so our bold surround below works
+        ["b"] = "b",
+      },
       surrounds = {
         ["l"] = {
           add = function()
@@ -84,6 +88,11 @@ autocmd("FileType", {
               }
             end,
           },
+        },
+        ["b"] = {
+          add = { "**", "**" },
+          find = "%*%*.-%*%*",
+          delete = "^(%*%*)().-(%*%*)()$",
         },
       },
     }
