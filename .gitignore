@@ -2,5 +2,6 @@
 
 .config/gh/hosts.yml
 /.config/hypr/local.conf
+/.config/hypr/local.lua
 /.config/hypr/hyprpaper-local.conf
 /.config/worktrunk/approvals.*

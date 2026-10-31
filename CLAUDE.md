@@ -14,7 +14,7 @@ The repo targets **macOS** (primary) and **Linux** (Hyprland/Wayland). Platform-
 
 - **kitty**: `kitty.conf` sources `macos.conf` or `linux.conf` for OS-specific keybindings
 - **git**: `.gitconfig` includes `~/.gitconfig.macos` and `~/.gitconfig.linux` (machine-local, not tracked)
-- **Hyprland** (`~/.config/hypr/`): Linux-only; sources a machine-local `~/.config/hypr/local.conf` (not tracked) for per-machine overrides like monitor layout
+- **Hyprland** (`~/.config/hypr/`): Linux-only, Lua config (`hyprland.lua`); optionally loads a machine-local `~/.config/hypr/local.lua` (not tracked) for per-machine overrides like monitor layout
 
 ## Shell (zsh / Oh My Zsh)
 
