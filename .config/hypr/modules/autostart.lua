@@ -13,6 +13,7 @@ hl.on("hyprland.start", function()
 
     hl.exec_cmd("waybar")
     hl.exec_cmd("swaync")
+    hl.exec_cmd("blueman-applet") -- Bluetooth tray icon (waybar "tray")
 
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd("sh -lc 'sleep 1; /home/javi/.local/bin/awww-random /home/javi/Pictures/Wallpapers/EpicUltraWide 300 >> /tmp/awww-random.log 2>&1'")

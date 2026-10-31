@@ -75,6 +75,7 @@ tooltip label {
 #taskbar button,
 #pulseaudio,
 #network,
+#bluetooth,
 #tray,
 #battery,
 #system,
@@ -130,6 +131,15 @@ tooltip label {
 
 #network {
     color: @purple;
+}
+
+#bluetooth {
+    color: @cyan;
+}
+
+#bluetooth.off,
+#bluetooth.disabled {
+    color: @grey1;
 }
 
 #battery {
