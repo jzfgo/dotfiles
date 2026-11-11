@@ -6,16 +6,34 @@
 local M = {}
 
 M.base46 = {
-  theme = "chadracula-evondev",
-  theme_toggle = { "chadracula-evondev", "chadracula-evondev" },
+  theme = "catppuccin",
+  theme_toggle = { "catppuccin", "catppuccin-latte" },
   transparency = true,
 
   -- `light_grey` drives Comment plus every other muted-text group (bufferline
   -- inactive tabs, folded text, NvDash buttons, git/lsp/mason muted text...).
-  -- The theme's own #6060a4 only hits ~3.2:1 contrast on the dark bg (fails
-  -- WCAG AA's 4.5:1 for body text). Reuse base0F (#7e7eb5), already in this
-  -- theme for delimiters/punctuation, which gets ~4.8:1.
+  -- Override per theme so comments and muted text meet WCAG AA (>= 4.5:1):
+  -- - catppuccin (Mocha dark): Overlay2 #9399b2 (~5.8:1 on #1E1D2D)
+  -- - catppuccin_latte (Latte light, note underscore in base46): Subtext1 #5c5f77 (~5.5:1 on #EFF1F5)
+  -- - chadracula-evondev: base0F #7e7eb5 (~4.8:1 on #141423)
   changed_themes = {
+    catppuccin = {
+      base_30 = {
+        light_grey = "#9399b2",
+      },
+    },
+    catppuccin_latte = {
+      base_30 = {
+        grey = "#8c8fa1",
+        grey_fg = "#7c7f93",
+        grey_fg2 = "#6c6f85",
+        light_grey = "#5c5f77",
+      },
+      base_16 = {
+        base03 = "#8c8fa1",
+        base04 = "#7c7f93",
+      },
+    },
     ["chadracula-evondev"] = {
       base_30 = {
         light_grey = "#7e7eb5",
@@ -24,12 +42,28 @@ M.base46 = {
   },
 
   -- Real code comments are highlighted via treesitter's `@comment`, which
-  -- (unlike the legacy `Comment` group above) reads `grey_fg` (#4b4b83,
-  -- ~2.3:1 contrast) instead of `light_grey` — that's why changing the
-  -- palette alone didn't touch them. Point `@comment` at the same
-  -- already-fixed `light_grey` so both paths land on the same color.
+  -- (unlike the legacy `Comment` group above) reads `grey_fg` instead of
+  -- `light_grey` — that's why changing the palette alone didn't touch them.
+  -- Point `@comment` at the same already-fixed `light_grey` so both paths
+  -- land on the same color.
   hl_override = {
     ["@comment"] = { fg = "light_grey" },
+    -- Base46's minimal statusline sets `bg = colors.black` on left pill caps
+    -- (``) while right caps (``) have `bg = "none"`. With transparency
+    -- enabled, that leaves an opaque corner box behind every left cap.
+    St_NormalModeSep = { bg = "NONE" },
+    St_VisualModeSep = { bg = "NONE" },
+    St_InsertModeSep = { bg = "NONE" },
+    St_TerminalModeSep = { bg = "NONE" },
+    St_NTerminalModeSep = { bg = "NONE" },
+    St_ReplaceModeSep = { bg = "NONE" },
+    St_ConfirmModeSep = { bg = "NONE" },
+    St_CommandModeSep = { bg = "NONE" },
+    St_SelectModeSep = { bg = "NONE" },
+    St_file_sep = { bg = "NONE" },
+    St_cwd_sep = { bg = "NONE" },
+    St_Pos_sep = { bg = "NONE" },
+    St_lsp_sep = { bg = "NONE" },
   },
 }
 

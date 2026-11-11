@@ -25,9 +25,21 @@ require("lazy").setup({
   { import = "plugins" },
 }, lazy_config)
 
+-- Preserve the terminal's initial `background` detection before Base46's
+-- cached `defaults` file overwrites `vim.o.bg` with the last compiled theme's
+-- background.
+local initial_bg = vim.o.background
+
 -- load theme
-dofile(vim.g.base46_cache .. "defaults")
-dofile(vim.g.base46_cache .. "statusline")
+if vim.uv.fs_stat(vim.g.base46_cache .. "defaults") then
+  dofile(vim.g.base46_cache .. "defaults")
+  dofile(vim.g.base46_cache .. "statusline")
+  vim.g.base46_cached_bg = vim.o.background
+end
+
+if vim.o.background ~= initial_bg then
+  vim.o.background = initial_bg
+end
 
 require "options"
 require "autocmds"

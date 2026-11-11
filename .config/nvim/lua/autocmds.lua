@@ -2,6 +2,51 @@ require "nvchad.autocmds"
 
 local autocmd = vim.api.nvim_create_autocmd
 
+-- Base46's compiled `defaults` cache sets `vim.o.bg` during init.lua, which
+-- marks 'background' as user-set (`was_set = true`) and causes Neovim's
+-- built-in `nvim.tty` VimEnter autocmd to delete its `TermResponse` OSC 11
+-- listener. Remove that `VimEnter` cleanup autocmd so Neovim keeps updating
+-- `vim.o.background` when the terminal switches between light and dark themes.
+local ok_tty, tty_autocmds = pcall(vim.api.nvim_get_autocmds, {
+  group = "nvim.tty",
+  event = "VimEnter",
+})
+if ok_tty then
+  for _, au in ipairs(tty_autocmds) do
+    if type(au.callback) == "function" and debug.getupvalue(au.callback, 1) == "id" then
+      pcall(vim.api.nvim_del_autocmd, au.id)
+    end
+  end
+end
+
+-- Sync NvChad's Base46 theme with Neovim's `background` option (`dark` ->
+-- catppuccin, `light` -> catppuccin-latte), both on startup and live when
+-- the OS/terminal appearance changes.
+local current_compiled_bg = vim.g.base46_cached_bg
+require("nvconfig").base46.theme = current_compiled_bg == "light" and "catppuccin-latte" or "catppuccin"
+
+local function sync_theme_with_background()
+  local bg = vim.o.background
+  local target = bg == "light" and "catppuccin-latte" or "catppuccin"
+  local nvconfig = require "nvconfig"
+
+  if nvconfig.base46.theme ~= target or current_compiled_bg ~= bg then
+    current_compiled_bg = bg
+    nvconfig.base46.theme = target
+    require("base46").load_all_highlights()
+  end
+end
+
+autocmd("OptionSet", {
+  pattern = "background",
+  callback = sync_theme_with_background,
+})
+
+autocmd("UIEnter", {
+  once = true,
+  callback = sync_theme_with_background,
+})
+
 -- Re-apply NvimTree transparency after each colorscheme load, since themes reset all highlights
 autocmd("ColorScheme", {
   pattern = "*",

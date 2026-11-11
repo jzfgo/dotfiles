@@ -73,9 +73,6 @@ return {
     opts = require "configs.mason",
   },
 
-  -- sync terminal background color
-  { "typicode/bg.nvim", lazy = false },
-
   -- test new blink
   { import = "nvchad.blink.lazyspec" },
 
