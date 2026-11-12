@@ -1,4 +1,4 @@
-theme = "catppuccin-mocha"
+theme = "terminal"
 watch = true
 tab_width = 2
 agent_notes = true

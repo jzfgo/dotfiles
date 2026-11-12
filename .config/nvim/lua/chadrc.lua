@@ -6,8 +6,8 @@
 local M = {}
 
 M.base46 = {
-  theme = "catppuccin",
-  theme_toggle = { "catppuccin", "catppuccin-latte" },
+  theme = "pencil-dark",
+  theme_toggle = { "pencil-dark", "pencil-light" },
   transparency = true,
 
   -- `light_grey` drives Comment plus every other muted-text group (bufferline

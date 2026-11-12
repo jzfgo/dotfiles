@@ -20,14 +20,14 @@ if ok_tty then
 end
 
 -- Sync NvChad's Base46 theme with Neovim's `background` option (`dark` ->
--- catppuccin, `light` -> catppuccin-latte), both on startup and live when
+-- pencil-dark, `light` -> pencil-light), both on startup and live when
 -- the OS/terminal appearance changes.
 local current_compiled_bg = vim.g.base46_cached_bg
-require("nvconfig").base46.theme = current_compiled_bg == "light" and "catppuccin-latte" or "catppuccin"
+require("nvconfig").base46.theme = current_compiled_bg == "light" and "pencil-light" or "pencil-dark"
 
 local function sync_theme_with_background()
   local bg = vim.o.background
-  local target = bg == "light" and "catppuccin-latte" or "catppuccin"
+  local target = bg == "light" and "pencil-light" or "pencil-dark"
   local nvconfig = require "nvconfig"
 
   if nvconfig.base46.theme ~= target or current_compiled_bg ~= bg then

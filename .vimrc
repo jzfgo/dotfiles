@@ -15,13 +15,14 @@ Plug 'junegunn/fzf.vim'
 Plug 'tribela/vim-transparent'
 Plug 'itchyny/lightline.vim'
 Plug 'drewtempelmeyer/palenight.vim'
+Plug 'preservim/vim-colors-pencil'
 call plug#end()
 " End Plugins
 
 " Theme
 set termguicolors
-set background=dark
-colorscheme palenight
+colorscheme pencil
+let g:lightline = { 'colorscheme': 'one' }
 " End Theme
 
 " --- General Settings ---
