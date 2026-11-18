@@ -28,5 +28,15 @@ brew() {
   return $ec
 }
 
+# En betaespera (y sus worktrees, que viven dentro) usa la cuenta de elenica.
+# Solo si claude-ele existe en esta máquina; si no, cae al claude normal.
+claude() {
+  if [[ $PWD == $HOME/Projects/personal/betaespera(|/*) ]] && (( $+commands[claude-ele] )); then
+    claude-ele "$@"
+  else
+    command claude "$@"
+  fi
+}
+
 # Machine-local aliases (not tracked; may contain host- or OS-specific setup)
 [[ -f ~/.zsh_aliases.local ]] && source ~/.zsh_aliases.local
