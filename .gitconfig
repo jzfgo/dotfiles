@@ -67,3 +67,9 @@
 [include]
     path = ~/.gitconfig.macos
     path = ~/.gitconfig.linux
+[credential "https://github.com"]
+	helper = 
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !gh auth git-credential
