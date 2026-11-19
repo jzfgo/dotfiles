@@ -24,6 +24,7 @@ The repo targets **macOS** (primary) and **Linux** (Hyprland/Wayland). Platform-
   - `aliases.zsh` — aliases + a `brew()` wrapper that re-applies the kitty custom icon after upgrades. Also sources `~/.zsh_aliases.local` (machine-local, not tracked) — host- or OS-specific aliases go there, never in tracked files
   - `eza.zsh` — eza display configuration (replaces `ls`)
   - `yazi.zsh` — `y()` wrapper that changes the shell's CWD when exiting yazi
+  - `bell.zsh` — rings the bell when a command fails (except 130/Ctrl+C), triggering kitty's `screen-shake` shader
 
 ## Nested guidance
 
