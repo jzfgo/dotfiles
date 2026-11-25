@@ -13,6 +13,9 @@ export PATH="$PATH:/Users/javi/.docker/bin"
 export EDITOR="$(command -v nvim || command -v vim || command -v vi 2>/dev/null)"
 export VISUAL="$EDITOR"
 
+# Opt out of CLI telemetry
+export RESEND_TELEMETRY_DISABLED=1
+
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
