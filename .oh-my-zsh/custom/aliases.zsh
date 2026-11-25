@@ -8,6 +8,10 @@ alias v="nvim"
 
 alias lg="lazygit"
 
+# neonctl has no env var for telemetry, only a per-invocation flag
+alias neonctl="neonctl --no-analytics"
+alias neon="neon --no-analytics"
+
 alias kkn='clear && command -v cmatrix >/dev/null 2>&1 && cmatrix -Ba -u 2 -C green || echo "The Matrix has you... (install cmatrix)"'
 
 # Re-apply the custom kitty icon after brew operations that replace kitty.app.

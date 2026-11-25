@@ -14,7 +14,19 @@ export EDITOR="$(command -v nvim || command -v vim || command -v vi 2>/dev/null)
 export VISUAL="$EDITOR"
 
 # Opt out of CLI telemetry
-export RESEND_TELEMETRY_DISABLED=1
+export DO_NOT_TRACK=1                              # cross-tool convention: Claude Code, Bun, Supabase, gh…
+export DISABLE_TELEMETRY=1                         # Claude Code (Statsig)
+export DISABLE_ERROR_REPORTING=1                   # Claude Code (Sentry)
+
+export GH_TELEMETRY=false                          # GitHub CLI (takes precedence over DO_NOT_TRACK)
+export HOMEBREW_NO_ANALYTICS=1                     # Homebrew
+export CLOUDSDK_CORE_DISABLE_USAGE_REPORTING=true  # gcloud
+export RESEND_TELEMETRY_DISABLED=1                 # Resend CLI
+
+export WRANGLER_SEND_METRICS=false                 # Cloudflare
+export NEXT_TELEMETRY_DISABLED=1                   # Next.js
+export ASTRO_TELEMETRY_DISABLED=1                  # Astro
+export VERCEL_TELEMETRY_DISABLED=1                 # Vercel CLI
 
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
